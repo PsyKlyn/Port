@@ -373,56 +373,6 @@ function renderDeleteButton(item){
   readerContent.appendChild(btn);
 }
 
-async function deleteSelectedWriteup(item,btn){
-  if(!IS_ADMIN || !item?.live) return;
-  const title=item.title || item.slug || 'this write-up';
-  if(!window.confirm(`Delete “${title}”?\n\nThis removes the published write-up from the live database.`)) return;
-  btn.disabled=true;
-  try{
-    if(!CSRF_TOKEN){
-      const csrfResponse=await fetch('/api/auth/csrf',{credentials:'same-origin',cache:'no-store'});
-      if(!csrfResponse.ok) throw new Error('Could not obtain CSRF token');
-      CSRF_TOKEN=(await csrfResponse.json()).csrf || '';
-    }
-    let response=await fetch(`/api/writeups/${encodeURIComponent(item.slug)}`,{
-      method:'DELETE',credentials:'same-origin',headers:{'X-CSRF-Token':CSRF_TOKEN},cache:'no-store'
-    });
-    if(response.status===403){
-      const csrfResponse=await fetch('/api/auth/csrf',{credentials:'same-origin',cache:'no-store'});
-      if(csrfResponse.ok){
-        CSRF_TOKEN=(await csrfResponse.json()).csrf || '';
-        response=await fetch(`/api/writeups/${encodeURIComponent(item.slug)}`,{
-          method:'DELETE',credentials:'same-origin',headers:{'X-CSRF-Token':CSRF_TOKEN},cache:'no-store'
-        });
-      }
-    }
-    const data=await response.json().catch(()=>({}));
-    if(response.status===401){
-      IS_ADMIN=false; renderDeleteButton(item);
-      throw new Error('Your admin session has expired.');
-    }
-    if(!response.ok) throw new Error(data.error || `Delete failed (${response.status})`);
-
-    LIVE_ITEMS=LIVE_ITEMS.filter(w => (w.slug || slugify(w.title)) !== item.slug);
-    try{
-      const local=publishedItems().filter(w => (w.slug || slugify(w.title)) !== item.slug);
-      localStorage.setItem(PUBLISHED_KEY,JSON.stringify(local));
-    }catch{}
-    renderDeleteButton(null);
-    showToast(`“${title}” deleted successfully.`);
-    renderFilters();
-    renderGrid();
-    renderReaderList();
-    const next=allItems()[0];
-    if(next) await selectItem(next.slug,true);
-    else closeReader();
-  }catch(err){
-    console.error(err);
-    btn.disabled=false;
-    showToast(err?.message || 'Could not delete the write-up.', 'error');
-  }
-}
-
 async function showReader(item) {
   readerBody.innerHTML = `<div class="reader-loading"><i class="fa-solid fa-spinner fa-spin"></i><span>Loading write-up...</span></div>`;
   const doc = addPublishedStyles(await getContent(item));
@@ -519,3 +469,170 @@ async function loadLiveWriteups(){
   if(initialItem) selectItem(initialItem,true);
 }
 loadLiveWriteups();
+
+let pendingDelete = null;
+
+function openDeleteModal(title, slug) {
+  const modal = document.getElementById("deleteModal");
+  const name = document.getElementById("deleteWriteupName");
+
+  if (!modal) return;
+
+  pendingDelete = {
+    slug,
+    title: title || "this write-up"
+  };
+
+  name.textContent = `"${title}"`;
+
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeDeleteModal() {
+  const modal = document.getElementById("deleteModal");
+
+  if (!modal) return;
+
+  modal.classList.remove("active");
+  document.body.style.overflow = "";
+
+  pendingDeleteSlug = null;
+}
+
+document.getElementById("deleteCancelBtn")?.addEventListener("click", () => {
+  closeDeleteModal();
+});
+
+document.querySelector(".delete-modal-backdrop")?.addEventListener("click", () => {
+  closeDeleteModal();
+});
+
+document.getElementById("deleteConfirmBtn")?.addEventListener("click", async () => {
+
+  if (!pendingDelete) return;
+
+  const { slug, title } = pendingDelete;
+  const button = document.getElementById("deleteConfirmBtn");
+
+  button.disabled = true;
+  button.textContent = "Deleting...";
+
+  try {
+
+    if (!CSRF_TOKEN) {
+      const csrfResponse = await fetch('/api/auth/csrf', {
+        credentials: 'same-origin',
+        cache: 'no-store'
+      });
+
+      if (!csrfResponse.ok) {
+        throw new Error('Could not obtain CSRF token');
+      }
+
+      CSRF_TOKEN = (await csrfResponse.json()).csrf || '';
+    }
+
+    let response = await fetch(
+      `/api/writeups/${encodeURIComponent(slug)}`,
+      {
+        method: 'DELETE',
+        credentials: 'same-origin',
+        headers: {
+          'X-CSRF-Token': CSRF_TOKEN
+        },
+        cache: 'no-store'
+      }
+    );
+
+    // Refresh CSRF token if necessary
+    if (response.status === 403) {
+
+      const csrfResponse = await fetch('/api/auth/csrf', {
+        credentials: 'same-origin',
+        cache: 'no-store'
+      });
+
+      if (csrfResponse.ok) {
+
+        CSRF_TOKEN = (await csrfResponse.json()).csrf || '';
+
+        response = await fetch(
+          `/api/writeups/${encodeURIComponent(slug)}`,
+          {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: {
+              'X-CSRF-Token': CSRF_TOKEN
+            },
+            cache: 'no-store'
+          }
+        );
+      }
+    }
+
+    const data = await response.json().catch(() => ({}));
+
+    if (response.status === 401) {
+      IS_ADMIN = false;
+      closeDeleteModal();
+      throw new Error('Your admin session has expired.');
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || `Delete failed (${response.status})`
+      );
+    }
+
+    // Remove from live list
+    LIVE_ITEMS = LIVE_ITEMS.filter(
+      w => (w.slug || slugify(w.title)) !== slug
+    );
+
+    // Remove from localStorage
+    try {
+      const local = publishedItems().filter(
+        w => (w.slug || slugify(w.title)) !== slug
+      );
+
+      localStorage.setItem(
+        PUBLISHED_KEY,
+        JSON.stringify(local)
+      );
+    } catch {}
+
+    closeDeleteModal();
+
+    renderDeleteButton(null);
+    renderFilters();
+    renderGrid();
+    renderReaderList();
+
+    showToast(
+      `“${title}” deleted successfully.`
+    );
+
+    const next = allItems()[0];
+
+    if (next) {
+      await selectItem(next.slug, true);
+    } else {
+      closeReader();
+    }
+
+  } catch (err) {
+
+    console.error(err);
+
+    button.disabled = false;
+    button.textContent = "Delete";
+
+    closeDeleteModal();
+
+    showToast(
+      err?.message || 'Could not delete the write-up.',
+      'error'
+    );
+  }
+});
