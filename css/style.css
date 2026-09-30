@@ -362,13 +362,32 @@ html::-webkit-scrollbar-thumb:hover{
   background:linear-gradient(105deg,transparent 0%,transparent 42%,rgba(255,255,255,0) 45%,rgba(255,255,255,.9) 50%,rgba(255,215,105,.55) 54%,rgba(255,255,255,0) 59%,transparent 63%,transparent 100%);
   transform:translateX(-75%) skewX(-12deg);
   filter:blur(1px);
-  animation:universityLogoReflect 6s cubic-bezier(.22,1,.36,1) infinite;
+  animation:universityLogoReflect 7s linear infinite;
 }
+
 @keyframes universityLogoReflect{
-  0%,22%{transform:translateX(-75%) skewX(-12deg);opacity:0}
-  28%{opacity:1}
-  55%{transform:translateX(75%) skewX(-12deg);opacity:.85}
-  63%,100%{transform:translateX(75%) skewX(-12deg);opacity:0}
+  0%{
+    transform:translateX(-75%) skewX(-12deg);
+    opacity:0;
+  }
+
+  10%{
+    opacity:1;
+  }
+
+  55%{
+    transform:translateX(75%) skewX(-12deg);
+    opacity:.85;
+  }
+
+  57%{
+    opacity:0;
+  }
+
+  100%{
+    transform:translateX(75%) skewX(-12deg);
+    opacity:0;
+  }
 }
 
 /* Real certificate artwork replaces icon-only presentation for completed paths. */
