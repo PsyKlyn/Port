@@ -143,17 +143,18 @@ LOGIN_HTML='''<!doctype html><html><head><meta charset="utf-8"><meta name="viewp
 def admin_login(): return render_template_string(LOGIN_HTML)
 
 @app.get('/editor.html')
-def protected_editor():
-    if not session.get('admin_id'): return redirect('/admin/login')
+def public_editor():
+    # The editor is intentionally public/read-write in the browser UI.
+    # Publishing remains protected by @admin_required on the API.
     return send_from_directory(BASE,'editor.html')
 
 @app.get('/admin')
-def admin(): return redirect('/editor.html')
+def admin(): return redirect('/admin/login')
 
 @app.route('/', defaults={'path':'index.html'})
 @app.route('/<path:path>')
 def static_files(path):
-    if path == 'editor.html': return protected_editor()
+    # editor.html is public; the publish/delete APIs remain admin-only.
     full=os.path.join(BASE,path)
     if os.path.isfile(full): return send_from_directory(BASE,path)
     abort(404)
