@@ -11,6 +11,7 @@ const search = $("#search");
 const filters = $("#filters");
 const empty = $("#empty");
 const showMore = $(".show-more-btn");
+let LIVE_HOME_WRITEUPS = null;
 
 function slugifyWriteup(value) {
   return String(value || "").toLowerCase().trim()
@@ -24,29 +25,50 @@ function getPublishedWriteups() {
     const items = JSON.parse(localStorage.getItem("sardhon-published-writeups-v1") || "[]");
     return Array.isArray(items) ? items.map(w => {
       const slug = w.slug || w.id || slugifyWriteup(w.title);
-      return {
-        ...w,
-        slug,
-        url: `writeups.html?slug=${encodeURIComponent(slug)}`,
-        published: true
-      };
+      return {...w, slug, url:`writeups.html?slug=${encodeURIComponent(slug)}`, published:true};
     }) : [];
   } catch { return []; }
 }
 
+function normalizeHomeTags(tags){
+  const raw=Array.isArray(tags)?tags:String(tags||"").split(",");
+  const seen=new Set(), out=[];
+  for(const value of raw){
+    const display=String(value||"").trim();
+    const key=display.toLowerCase();
+    if(!key||seen.has(key)) continue;
+    seen.add(key); out.push(display);
+  }
+  return out;
+}
+
 function allWriteups() {
-  const published = getPublishedWriteups();
-  const publishedSlugs = new Set(published.map(w => w.slug || slugifyWriteup(w.title)));
-  return [...published, ...WRITEUPS.filter(w => !publishedSlugs.has(w.slug || slugifyWriteup(w.title)))].map(w => ({
-    ...w,
-    slug: w.slug || slugifyWriteup(w.title),
-    url: `writeups.html?slug=${encodeURIComponent(w.slug || slugifyWriteup(w.title))}`
-  }));
+  if(Array.isArray(LIVE_HOME_WRITEUPS)){
+    return LIVE_HOME_WRITEUPS.map(w=>{
+      const slug=w.slug||slugifyWriteup(w.title);
+      return {...w,slug,tags:normalizeHomeTags(w.tags),url:`writeups.html?slug=${encodeURIComponent(slug)}`};
+    });
+  }
+  const published=getPublishedWriteups();
+  const publishedSlugs=new Set(published.map(w=>w.slug||slugifyWriteup(w.title)));
+  return [...published,...WRITEUPS.filter(w=>!publishedSlugs.has(w.slug||slugifyWriteup(w.title)))].map(w=>({...w,slug:w.slug||slugifyWriteup(w.title),tags:normalizeHomeTags(w.tags),url:`writeups.html?slug=${encodeURIComponent(w.slug||slugifyWriteup(w.title))}`}));
+}
+
+async function loadLiveHomeWriteups(){
+  try{
+    const response=await fetch('/api/writeups',{credentials:'same-origin',cache:'no-store'});
+    if(response.ok){
+      const data=await response.json();
+      if(Array.isArray(data)) LIVE_HOME_WRITEUPS=data;
+    }
+  }catch{}
+  renderFilters();
+  renderWriteups();
 }
 
 function renderFilters() {
   if (!filters) return;
-  const tags = [...new Set(allWriteups().flatMap(w => w.tags || []))].sort();
+  const tags = [...new Map(allWriteups().flatMap(w => normalizeHomeTags(w.tags)).map(t=>[t.toLowerCase(),t])).values()].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base"}));
   filters.innerHTML = `<button class="filter active" data-tag="">All</button>` +
     tags.map(t => `<button class="filter" data-tag="${t}">${t}</button>`).join("");
   $$(".filter", filters).forEach(btn => btn.addEventListener("click", () => {
@@ -60,10 +82,10 @@ function renderWriteups() {
   if (!grid) return;
   const isHome = grid.classList.contains("home-writeup-grid");
   const q = (search?.value || "").toLowerCase().trim();
-  const active = filters ? $(".filter.active", filters)?.dataset.tag || "" : "";
+  const active = filters ? ($( ".filter.active", filters)?.dataset.tag || "").toLowerCase() : "";
   let list = allWriteups().filter(w => {
     const text = `${w.title} ${w.category} ${w.excerpt} ${(w.tags || []).join(" ")}`.toLowerCase();
-    return (!q || text.includes(q)) && (!active || (w.tags || []).includes(active));
+    return (!q || text.includes(q)) && (!active || normalizeHomeTags(w.tags).some(t=>t.toLowerCase()===active));
   });
   if (isHome) list = list.slice(0, 3);
   grid.innerHTML = list.map(w => `
@@ -78,9 +100,10 @@ function renderWriteups() {
 }
 
 if (grid) {
-  if (filters) renderFilters();
+  renderFilters();
   renderWriteups();
   search?.addEventListener("input", renderWriteups);
+  loadLiveHomeWriteups();
 }
 
 
