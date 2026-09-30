@@ -14,7 +14,7 @@ const WRITEUPS = [
     category: "TRYHACKME",
     date: "2026-09-29",
     excerpt: "A security investigation covering request analysis, input handling and controlled SQL injection validation.",
-    tags: ["sql", "web", "tryhackme"],
+    tags: ["sql"],
     url: "Write-Ups/sql-injection.html"
   },
   {
@@ -22,7 +22,7 @@ const WRITEUPS = [
     category: "TRYHACKME",
     date: "2026-09-29",
     excerpt: "Documenting an object-level authorization issue discovered during an authorized security assessment.",
-    tags: ["idor", "web", "access-control"],
+    tags: ["idor"],
     url: "Write-Ups/idor-in-user-profile-endpoint.html"
   }
 ];
