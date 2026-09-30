@@ -1,0 +1,1020 @@
+.writeups-page-shell{position:relative;z-index:2;width:min(1220px,calc(100% - 42px));margin:0 auto;padding:78px 0 100px;min-height:calc(100vh - 74px)}
+.writeups-hero{padding:28px 0 48px}.writeups-hero h1{font-size:clamp(52px,7vw,84px);line-height:.98;letter-spacing:-.06em;margin:13px 0 24px;max-width:950px}.writeups-hero>p:last-child{color:#aaa2bd;font-size:17px;margin:0;max-width:780px}
+.writeups-browser{padding-top:8px}.writeup-tools{display:flex;gap:10px;margin-bottom:20px;align-items:center}.writeup-tools input{flex:1;max-width:600px;padding:14px 16px;background:#0e0c14;color:#eeeaf7;border:1px solid rgba(154,132,210,.18);border-radius:11px;outline:none}.writeup-tools input:focus{border-color:rgba(169,140,255,.55);box-shadow:0 0 0 1px rgba(169,140,255,.1),0 0 16px rgba(169,140,255,.08)}.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.filter{border:1px solid rgba(154,132,210,.18);background:#0e0c14;color:#aaa2bd;border-radius:9px;padding:8px 11px;font-size:11px;cursor:pointer}.filter.active{color:#b59cff;border-color:#b59cff;box-shadow:0 0 12px rgba(169,140,255,.08)}
+.writeup-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.writeup-card{min-height:190px;display:flex;flex-direction:column;align-items:stretch;text-align:left;color:#eeeaf7;font-family:Inter,system-ui,sans-serif;border:1px solid rgba(154,132,210,.18);background:#0e0c14;border-radius:17px;padding:24px;transition:transform .2s ease,border-color .25s ease,box-shadow .25s ease;appearance:none;-webkit-appearance:none}.writeup-card h3{color:#eeeaf7}.writeup-card p{color:#aaa2bd}.writeup-card time{color:#7d748f}.writeup-card .category{color:#b59cff}.writeup-card:hover{transform:translateY(-3px);border-color:rgba(169,140,255,.5);box-shadow:0 18px 45px rgba(0,0,0,.18)}.writeup-card .category{font:600 9px "JetBrains Mono",monospace;color:#b59cff;letter-spacing:.12em}.writeup-card h3{font-size:21px;line-height:1.25;margin:11px 0 10px}.writeup-card p{color:#aaa2bd;font-size:13px;margin:0 0 20px}.writeup-card time{margin-top:auto;color:#7d748f;font-size:10px;font-family:"JetBrains Mono",monospace}.empty{margin-top:18px;padding:35px;border:1px dashed rgba(148,176,202,.2);border-radius:14px;color:#aaa2bd}
+@media(max-width:900px){.writeup-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.writeups-page-shell{width:calc(100% - 30px);padding-top:55px}.writeup-hero h1{font-size:48px}.writeup-tools{flex-direction:column;align-items:stretch}.writeup-tools input{max-width:none}.writeup-grid{grid-template-columns:1fr}}
+
+/* Single-page reader: the list and the selected write-up live in the same document. */
+.writeup-reader-stage{position:relative;min-height:240px}
+.writeup-reader-stage.rearranging .writeup-card{animation:writeupSnap .42s cubic-bezier(.22,1,.36,1) both}
+@keyframes writeupSnap{0%{transform:translate(0,0) scale(1);opacity:1}45%{transform:translate(0,-10px) scale(.94);opacity:.58}100%{transform:translate(0,0) scale(1);opacity:1}}
+.writeup-reader-stage.reader-active .writeup-grid{display:none}
+.writeup-reader-stage.reader-active{display:grid;grid-template-columns:280px minmax(0,1fr);gap:18px;align-items:start;animation:readerReturn .55s cubic-bezier(.22,1,.36,1) both}
+@keyframes readerReturn{0%{opacity:.35;transform:scale(.985) translateY(12px)}55%{opacity:1;transform:scale(1.01) translateY(-3px)}100%{opacity:1;transform:none}}
+.reader-sidebar{position:sticky;top:96px;min-width:0;border:1px solid rgba(154,132,210,.18);border-radius:17px;background:rgba(13,12,19,.78);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.16)}
+.reader-sidebar-head{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 17px;border-bottom:1px solid rgba(154,132,210,.14);color:#b59cff;font:600 10px "JetBrains Mono",monospace;letter-spacing:.14em}
+.reader-sidebar-head button{width:32px;height:32px;border:1px solid rgba(154,132,210,.18);background:#0e0c14;color:#aaa2bd;border-radius:8px;cursor:pointer}.reader-sidebar-head button:hover{color:#eeeaf7;border-color:rgba(169,140,255,.55)}
+.reader-list{padding:8px;max-height:calc(100vh - 180px);overflow:auto;scrollbar-width:thin;scrollbar-color:rgba(169,140,255,.45) transparent}
+.reader-item{width:100%;display:block;text-align:left;padding:13px 12px;border-radius:10px;color:#aaa2bd;border:1px solid transparent;background:transparent;cursor:pointer}.reader-item:hover{background:#100d18;color:#eeeaf7}.reader-item.active{background:#100d18;border-color:rgba(169,140,255,.28);color:#eeeaf7;box-shadow:inset 2px 0 0 #a98cff}.reader-item .side-category{display:block;color:#a98cff;font:600 8px "JetBrains Mono",monospace;letter-spacing:.1em;margin-bottom:5px}.reader-item .side-title{display:block;font-size:12px;font-weight:700;line-height:1.35}.reader-item time{display:block;margin-top:5px;color:#70687e;font:9px "JetBrains Mono",monospace}
+.reader-content{min-width:0;border:1px solid rgba(154,132,210,.18);border-radius:20px;background:rgba(13,12,19,.72);padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.16);animation:readerContentIn .52s cubic-bezier(.22,1,.36,1) both}
+@keyframes readerContentIn{0%{opacity:0;transform:translateX(24px)}100%{opacity:1;transform:none}}
+.reader-back{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(154,132,210,.18);background:#0e0c14;color:#aaa2bd;border-radius:9px;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer;margin-bottom:28px}.reader-back:hover{color:#eeeaf7;border-color:rgba(169,140,255,.5)}
+.reader-body .published-body{max-width:920px;margin:0 auto}.reader-body .published-body>main{max-width:none;margin:0;padding:0}.reader-body .meta,.reader-body .published-meta{color:#a98cff;font:600 9px "JetBrains Mono",monospace;letter-spacing:.13em;margin-bottom:12px}.reader-body h1,.reader-body .published-title{font-size:clamp(40px,5vw,66px);line-height:1.02;letter-spacing:-.055em;margin:0 0 16px}.reader-body .intro,.reader-body .published-intro{color:#aaa2bd;font-size:17px;margin:0 0 32px}.reader-body h2{margin-top:42px}.reader-body h3{margin-top:28px}.reader-body img{display:block;max-width:100%;height:auto;border-radius:12px;margin:22px auto;border:1px solid rgba(154,132,210,.18)}.reader-body pre{white-space:pre-wrap;overflow:auto}.reader-loading{min-height:420px;display:flex;align-items:center;justify-content:center;gap:10px;color:#aaa2bd;font:11px "JetBrains Mono",monospace}.reader-unavailable{padding:28px 0;color:#aaa2bd}.card-open{display:block;margin-top:auto;padding-top:16px;color:#756c82;font-size:11px;transition:color .2s ease}.writeup-card:hover .card-open{color:#b59cff}
+.writeups-browser:has(.reader-active) .writeup-tools{position:relative;z-index:3}
+@media(max-width:850px){.writeup-reader-stage.reader-active{grid-template-columns:1fr}.reader-sidebar{position:static}.reader-list{max-height:300px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.reader-content{padding:24px}}
+@media(max-width:560px){.reader-list{grid-template-columns:1fr}.reader-content{padding:20px}.writeups-browser:has(.reader-active) .writeup-tools{margin-bottom:14px}}
+
+/* Catalogue cards match the reference write-up list: clean metadata, no extra corner icon. */
+.writeups-page-shell .writeup-card .card-open{display:none}
+.writeups-page-shell .writeup-card{color:#eeeaf7 !important}
+.writeups-page-shell .writeup-card h3{color:#eeeaf7 !important}
+.writeups-page-shell .writeup-card p{color:#aaa2bd !important}
+.writeups-page-shell .writeup-card time{color:#7d748f !important}
+
+/* Published article blocks use the same visual language without importing
+   page-level styles that could leak into the write-up catalogue. */
+.reader-body .published-body{color:#eeeaf7}
+.reader-body .published-body p,.reader-body .published-body li{color:#b7afc7}
+.reader-body .published-body .code-card,.reader-body .published-body .terminal-card,.reader-body .published-body .response-card,.reader-body .published-body .finding-card,.reader-body .published-body .callout,.reader-body .published-body .table-card,.reader-body .published-body .attack-card,.reader-body .published-body .mitre-card,.reader-body .published-body .cvss-card,.reader-body .published-body .evidence-card{margin:20px 0;border:1px solid rgba(154,132,210,.18);background:#0a0910;border-radius:12px;overflow:hidden}
+.reader-body .published-body .block-top{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid rgba(154,132,210,.12);color:#8e82a0;font:600 9px "JetBrains Mono",monospace}
+.reader-body .published-body .copy-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(169,140,255,.24);background:#0e0c14;color:#aaa2bd;border-radius:7px;padding:6px 9px;font:600 10px Inter,sans-serif;cursor:pointer}
+.reader-body .published-body pre{margin:0;padding:17px;overflow:auto;white-space:pre-wrap;color:#cfc2e5;font:12px/1.7 "JetBrains Mono",monospace}
+.reader-body .published-body blockquote{margin:20px 0;padding:13px 16px;border-left:3px solid #a98cff;background:rgba(169,140,255,.045);color:#b7afc7}
+
+/* Reader-mode catalogue layout: compact header, centered search, and a clean
+   divider before the selected write-up. The catalogue remains on this same page. */
+body.reader-mode .writeups-page-shell{
+  padding-top:18px;
+  padding-bottom:70px;
+}
+body.reader-mode .writeups-hero{
+  padding:12px 0 18px;
+}
+body.reader-mode .writeups-hero .eyebrow{
+  margin:0 0 7px;
+}
+body.reader-mode .writeups-hero h1{
+  font-size:clamp(30px,3.2vw,42px);
+  line-height:1.05;
+  letter-spacing:-.045em;
+  max-width:none;
+  margin:0 0 8px;
+}
+body.reader-mode .writeups-hero>p:last-child{
+  font-size:14px;
+  margin:0;
+}
+body.reader-mode .writeups-browser{
+  padding-top:4px;
+}
+body.reader-mode .writeup-tools{
+  justify-content:center;
+  align-items:center;
+  margin:0 auto;
+  padding:0 0 20px;
+  border-bottom:1px solid rgba(154,132,210,.16);
+  max-width:1040px;
+}
+body.reader-mode .writeup-tools input{
+  flex:0 1 720px;
+  max-width:720px;
+  min-width:280px;
+}
+body.reader-mode .filters{
+  justify-content:center;
+}
+body.reader-mode .writeup-reader-stage.reader-active{
+  margin-top:20px;
+  padding-top:0;
+  border-top:0;
+  grid-template-columns:300px minmax(0,1fr);
+  gap:18px;
+}
+body.reader-mode .reader-sidebar{
+  top:88px;
+}
+body.reader-mode .reader-sidebar-head{
+  height:54px;
+}
+body.reader-mode .reader-item{
+  border-radius:0;
+  border-bottom:1px solid rgba(154,132,210,.12);
+  padding:14px 13px;
+}
+body.reader-mode .reader-item:last-child{
+  border-bottom:0;
+}
+body.reader-mode .reader-content{
+  padding:28px 34px 42px;
+}
+body.reader-mode .reader-body .published-body>main{
+  padding-top:0;
+}
+@media(max-width:850px){
+  body.reader-mode .writeup-tools{
+    flex-wrap:wrap;
+  }
+  body.reader-mode .writeup-tools input{
+    flex-basis:100%;
+    max-width:720px;
+  }
+  body.reader-mode .writeup-reader-stage.reader-active{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Final single-page reader layout: after selecting a write-up the hero disappears
+   and the page becomes a compact catalogue + reader workspace. */
+.reader-toolbar-title{display:none}
+body.reader-mode .writeups-page-shell{
+  width:min(1280px,calc(100% - 42px));
+  padding-top:18px;
+  padding-bottom:70px;
+}
+body.reader-mode .writeups-hero{display:none}
+body.reader-mode .writeups-browser{padding-top:0}
+body.reader-mode .writeup-tools{
+  display:grid;
+  grid-template-columns:120px minmax(280px,720px) auto;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  width:100%;
+  max-width:none;
+  margin:0;
+  padding:8px 0 20px;
+  border-bottom:1px solid rgba(154,132,210,.18);
+}
+body.reader-mode .reader-toolbar-title{
+  display:block;
+  color:#eeeaf7;
+  font:700 12px "JetBrains Mono",monospace;
+  letter-spacing:.13em;
+  text-align:left;
+}
+body.reader-mode .writeup-tools input{
+  width:100%;
+  max-width:none;
+  min-width:0;
+  margin:0;
+  padding:14px 17px;
+}
+body.reader-mode .filters{
+  justify-content:flex-start;
+  flex-wrap:nowrap;
+}
+body.reader-mode .writeup-reader-stage.reader-active{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:300px minmax(0,1fr);
+  gap:22px;
+  align-items:start;
+  border:0;
+  padding:0;
+}
+body.reader-mode .reader-sidebar{
+  position:sticky;
+  top:92px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  overflow:visible;
+}
+body.reader-mode .reader-sidebar-head{
+  height:42px;
+  padding:0 0 10px 2px;
+  border-bottom:1px solid rgba(154,132,210,.16);
+}
+body.reader-mode .reader-list{
+  padding:8px 0 0;
+  max-height:calc(100vh - 155px);
+  overflow:auto;
+}
+body.reader-mode .reader-item{
+  width:100%;
+  margin:0 0 8px;
+  padding:13px 14px;
+  border:1px solid rgba(154,132,210,.16);
+  border-radius:11px;
+  background:#0e0c14;
+  color:#aaa2bd;
+  transition:transform .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease;
+}
+body.reader-mode .reader-item:last-child{margin-bottom:0}
+body.reader-mode .reader-item:hover{
+  background:#110e18;
+  border-color:rgba(169,140,255,.4);
+  transform:translateX(2px);
+}
+body.reader-mode .reader-item.active{
+  background:#110e18;
+  border-color:rgba(169,140,255,.65);
+  box-shadow:inset 3px 0 0 #a98cff,0 8px 24px rgba(0,0,0,.16);
+}
+body.reader-mode .reader-content{
+  min-width:0;
+  border:1px solid rgba(154,132,210,.18);
+  border-radius:18px;
+  background:rgba(13,12,19,.72);
+  padding:30px 36px 50px;
+  box-shadow:0 20px 60px rgba(0,0,0,.16);
+}
+body.reader-mode .reader-back{display:none}
+body.reader-mode .reader-body .published-body{max-width:920px}
+body.reader-mode .reader-body .published-body>main{padding:0}
+
+@media(max-width:900px){
+  body.reader-mode .writeup-tools{grid-template-columns:1fr;gap:10px;justify-items:stretch}
+  body.reader-mode .reader-toolbar-title{text-align:left}
+  body.reader-mode .filters{justify-content:flex-start;flex-wrap:wrap}
+  body.reader-mode .writeup-reader-stage.reader-active{grid-template-columns:250px minmax(0,1fr);gap:14px}
+}
+@media(max-width:700px){
+  body.reader-mode .writeups-page-shell{width:calc(100% - 30px)}
+  body.reader-mode .writeup-reader-stage.reader-active{grid-template-columns:1fr}
+  body.reader-mode .reader-sidebar{position:static}
+  body.reader-mode .reader-list{max-height:none}
+  body.reader-mode .reader-content{padding:24px 20px 40px}
+}
+
+/* Final reader spacing: keep the catalogue close to the viewport edge,
+   make the left cards compact, and visually separate the catalogue from the article. */
+@media(min-width:701px){
+  body.reader-mode .writeups-page-shell{
+    width:calc(100% - 20px);
+    max-width:none;
+    margin-left:10px;
+    margin-right:10px;
+  }
+  body.reader-mode .writeup-tools{
+    grid-template-columns:170px minmax(320px,720px) auto;
+    padding-left:10px;
+    padding-right:10px;
+  }
+  body.reader-mode .writeup-reader-stage.reader-active{
+    grid-template-columns:330px minmax(0,1fr);
+    gap:0;
+    margin-top:18px;
+  }
+  body.reader-mode .reader-sidebar{
+    padding-right:18px;
+    margin-right:18px;
+    border-right:1px solid rgba(154,132,210,.22);
+    min-height:calc(100vh - 190px);
+  }
+  body.reader-mode .reader-sidebar-head{
+    padding-left:0;
+  }
+  body.reader-mode .reader-list{
+    padding-top:6px;
+  }
+  body.reader-mode .reader-item{
+    padding:10px 12px;
+    margin-bottom:6px;
+    border-radius:10px;
+    min-height:0;
+  }
+  body.reader-mode .reader-item .side-category{
+    margin-bottom:3px;
+    font-size:8px;
+  }
+  body.reader-mode .reader-item .side-title{
+    font-size:12px;
+    line-height:1.25;
+  }
+  body.reader-mode .reader-content{
+    margin-left:0;
+  }
+}
+
+/* Reader scrolling behavior -------------------------------------------------
+   Selecting a write-up must never jump the page. The catalogue starts in the
+   same position as the normal reader view; the article becomes an internal
+   scroll area only after the top write-up controls have been scrolled away.
+*/
+@media(min-width:701px){
+  body.reader-mode .reader-list{
+    overflow-y:auto;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  body.reader-mode .reader-list::-webkit-scrollbar{width:0;height:0}
+
+  body.reader-mode .reader-content{
+    overflow:visible;
+    max-height:none;
+    overscroll-behavior:contain;
+  }
+
+  /* Once the top toolbar has been hidden, the selected article owns the
+     remaining viewport and gets a real scrollbar. */
+  body.reader-mode.reader-controls-collapsed .reader-content{
+    height:calc(100vh - 94px);
+    max-height:calc(100vh - 94px);
+    overflow-y:auto;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(169,140,255,.65) transparent;
+    padding-right:30px;
+  }
+  body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar{width:7px}
+  body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar-track{background:transparent}
+  body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar-thumb{
+    background:rgba(169,140,255,.65);
+    border-radius:999px;
+    border:2px solid transparent;
+    background-clip:padding-box;
+  }
+  body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar-thumb:hover{
+    background:rgba(169,140,255,.9);
+    background-clip:padding-box;
+  }
+
+  body.reader-mode.reader-controls-collapsed .reader-content{
+    animation:readerScrollAreaIn .28s ease both;
+  }
+  @keyframes readerScrollAreaIn{
+    from{box-shadow:0 20px 60px rgba(0,0,0,.16),0 0 0 rgba(169,140,255,0)}
+    to{box-shadow:0 20px 60px rgba(0,0,0,.16),0 0 24px rgba(169,140,255,.035)}
+  }
+}
+
+@media(max-width:700px){
+  body.reader-mode .reader-list{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  body.reader-mode .reader-list::-webkit-scrollbar{width:0;height:0}
+}
+
+/* --------------------------------------------------------------------------
+   Catalogue controls live inside the write-up list.
+   The old page hero/search strip is intentionally removed from the layout.
+   -------------------------------------------------------------------------- */
+.writeups-page-shell{
+  width:calc(100% - 20px);
+  max-width:none;
+  margin:0 10px;
+  padding:0 0 70px;
+  min-height:calc(100vh - 74px);
+}
+.writeups-hero{display:none !important}
+.writeups-browser{padding-top:0}
+.writeup-reader-stage.reader-active{
+  display:grid;
+  grid-template-columns:330px minmax(0,1fr);
+  gap:0;
+  align-items:start;
+  min-height:calc(100vh - 84px);
+  margin-top:0;
+  animation:none;
+}
+.reader-sidebar{
+  position:sticky;
+  top:85px;
+  height:calc(100vh - 85px);
+  min-width:0;
+  padding:0 18px 0 0;
+  margin:0 18px 0 0;
+  border:0;
+  border-right:1px solid rgba(154,132,210,.22);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  overflow:hidden;
+}
+.reader-controls{
+  padding-top:0;
+  transition:opacity .28s ease, transform .32s ease, max-height .36s ease, margin .36s ease;
+  max-height:210px;
+  overflow:hidden;
+}
+.reader-sidebar-head{
+  height:56px;
+  padding:0 2px;
+  border-bottom:0;
+  color:#eeeaf7;
+  font:700 12px "JetBrains Mono",monospace;
+  letter-spacing:.13em;
+}
+.reader-search{
+  position:relative;
+  margin:0 0 10px;
+}
+.reader-search i{
+  position:absolute;
+  left:13px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#7d748f;
+  font-size:11px;
+  pointer-events:none;
+}
+.reader-search input{
+  width:100%;
+  box-sizing:border-box;
+  padding:11px 12px 11px 34px;
+  background:#0e0c14;
+  color:#eeeaf7;
+  border:1px solid rgba(154,132,210,.18);
+  border-radius:10px;
+  outline:none;
+  font:500 11px Inter,system-ui,sans-serif;
+}
+.reader-search input::placeholder{color:#71697d}
+.reader-search input:focus{
+  border-color:rgba(169,140,255,.55);
+  box-shadow:0 0 0 1px rgba(169,140,255,.1);
+}
+.filters{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:0;
+}
+.filter{
+  border:1px solid rgba(154,132,210,.18);
+  background:#0e0c14;
+  color:#aaa2bd;
+  border-radius:8px;
+  padding:7px 9px;
+  font-size:10px;
+  cursor:pointer;
+}
+.filter.active{color:#b59cff;border-color:#b59cff;box-shadow:0 0 12px rgba(169,140,255,.08)}
+.reader-list-divider{
+  height:1px;
+  background:rgba(154,132,210,.18);
+  margin-top:15px;
+}
+.reader-list-label{
+  color:#b59cff;
+  font:600 10px "JetBrains Mono",monospace;
+  letter-spacing:.14em;
+  padding:15px 0 10px 2px;
+  transition:opacity .28s ease;
+}
+.reader-list{
+  height:calc(100% - 210px);
+  max-height:none;
+  padding:0 0 12px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.reader-list::-webkit-scrollbar{width:0;height:0}
+.reader-item{
+  width:100%;
+  box-sizing:border-box;
+  display:block;
+  text-align:left;
+  margin:0 0 8px;
+  padding:11px 12px;
+  border:1px solid rgba(154,132,210,.16);
+  border-radius:11px;
+  background:#0e0c14;
+  color:#aaa2bd;
+  cursor:pointer;
+  transition:transform .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease;
+}
+.reader-item:last-child{margin-bottom:0}
+.reader-item:hover{background:#110e18;border-color:rgba(169,140,255,.4);transform:translateX(2px)}
+.reader-item.active{background:#110e18;border-color:rgba(169,140,255,.65);box-shadow:inset 3px 0 0 #a98cff,0 8px 24px rgba(0,0,0,.16);color:#eeeaf7}
+.reader-item .side-category{display:block;color:#a98cff;font:600 8px "JetBrains Mono",monospace;letter-spacing:.1em;margin-bottom:3px}
+.reader-item .side-title{display:block;font-size:12px;font-weight:700;line-height:1.25}
+.reader-item time{display:none}
+.reader-content{
+  min-width:0;
+  min-height:calc(100vh - 120px);
+  border:1px solid rgba(154,132,210,.18);
+  border-radius:18px;
+  background:rgba(13,12,19,.72);
+  padding:30px 36px 50px;
+  box-shadow:0 20px 60px rgba(0,0,0,.16);
+  overflow:visible;
+}
+.reader-body .published-body{max-width:920px;margin:0 auto}
+
+/* First wheel over the article collapses only the controls. The list remains
+   visible; the article receives its own scrollbar only after the collapse. */
+body.reader-mode .reader-controls-collapsed .reader-controls{max-height:0;opacity:0;transform:translateY(-12px);pointer-events:none}
+body.reader-mode.reader-controls-collapsed .reader-sidebar-head,
+body.reader-mode.reader-controls-collapsed .reader-list-label{opacity:1}
+body.reader-mode.reader-controls-collapsed .reader-sidebar{top:85px}
+body.reader-mode.reader-controls-collapsed .reader-list{height:calc(100% - 38px)}
+body.reader-mode.reader-controls-collapsed .reader-content{
+  height:calc(100vh - 94px);
+  max-height:calc(100vh - 94px);
+  overflow-y:auto;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(169,140,255,.65) transparent;
+  padding-right:30px;
+}
+body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar{width:7px}
+body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar-track{background:transparent}
+body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar-thumb{background:rgba(169,140,255,.65);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar-thumb:hover{background:rgba(169,140,255,.9);background-clip:padding-box}
+
+@media(max-width:700px){
+  .writeups-page-shell{width:calc(100% - 30px);margin:0 15px}
+  .writeup-reader-stage.reader-active{grid-template-columns:1fr}
+  .reader-sidebar{position:relative;top:auto;height:auto;padding:0 0 18px;margin:0 0 18px;border-right:0;border-bottom:1px solid rgba(154,132,210,.22)}
+  .reader-list{height:300px}
+  .reader-content{min-height:500px;padding:24px 20px 40px}
+}
+
+
+/* --------------------------------------------------------------------------
+   Published write-up rendering
+   Keep the live reader visually consistent with the Editor's .writeup preview.
+   Everything is scoped to .published-body so article styles cannot leak into
+   the catalogue/sidebar/search UI.
+   -------------------------------------------------------------------------- */
+.reader-body .published-body.writeup{
+  color:#eeeaf7;
+  line-height:1.65;
+}
+.reader-body .published-body.writeup .eyebrow,
+.reader-body .published-body.writeup .meta{
+  color:#aa8de0;
+  font:600 10px "JetBrains Mono",monospace;
+  letter-spacing:.13em;
+  margin:0 0 0;
+}
+.reader-body .published-body.writeup h1{
+  font-size:clamp(38px,4vw,58px);
+  line-height:1.02;
+  margin:12px 0 25px;
+  letter-spacing:-.045em;
+}
+.reader-body .published-body.writeup h2{font-size:27px;margin:42px 0 10px}
+.reader-body .published-body.writeup h3{font-size:19px;margin:28px 0 8px}
+.reader-body .published-body.writeup p,
+.reader-body .published-body.writeup li{
+  color:#aaa2bd;
+  line-height:1.75;
+}
+.reader-body .published-body.writeup p{margin:9px 0}
+.reader-body .published-body.writeup ul,
+.reader-body .published-body.writeup ol{padding-left:23px}
+.reader-body .published-body.writeup a{color:#b59cff}
+.reader-body .published-body.writeup code{
+  font-family:"JetBrains Mono",monospace;
+  color:#d7ccff;
+  background:rgba(169,140,255,.07);
+  border:1px solid rgba(169,140,255,.12);
+  border-radius:5px;
+  padding:2px 5px;
+}
+.reader-body .published-body.writeup hr{
+  border:0;
+  border-top:1px solid rgba(154,132,210,.18);
+  margin:28px 0;
+}
+.reader-body .published-body.writeup blockquote{
+  margin:20px 0;
+  padding:13px 16px;
+  border-left:3px solid #a98cff;
+  background:rgba(169,140,255,.045);
+  color:#b7afc7;
+}
+.reader-body .published-body.writeup .code-card,
+.reader-body .published-body.writeup .terminal-card,
+.reader-body .published-body.writeup .response-card,
+.reader-body .published-body.writeup .finding-card,
+.reader-body .published-body.writeup .callout,
+.reader-body .published-body.writeup .table-card,
+.reader-body .published-body.writeup .attack-card,
+.reader-body .published-body.writeup .mitre-card,
+.reader-body .published-body.writeup .cvss-card,
+.reader-body .published-body.writeup .evidence-card{
+  margin:18px 0;
+  border:1px solid rgba(154,132,210,.18);
+  background:#0a0910;
+  border-radius:12px;
+  overflow:hidden;
+}
+.reader-body .published-body.writeup .block-top{
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px 0 13px;
+  border-bottom:1px solid rgba(154,132,210,.12);
+  background:#0e0c15;
+  color:#8e82a0;
+  font:600 9px "JetBrains Mono",monospace;
+  letter-spacing:.10em;
+}
+.reader-body .published-body.writeup .copy-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid rgba(169,140,255,.24);
+  background:#0e0c14;
+  color:#aaa2bd;
+  border-radius:7px;
+  padding:6px 9px;
+  font:600 10px Inter,system-ui,sans-serif;
+  cursor:pointer;
+}
+.reader-body .published-body.writeup .code-body,
+.reader-body .published-body.writeup .terminal-body,
+.reader-body .published-body.writeup .response-body{
+  display:block;
+  margin:0;
+  padding:16px;
+  min-height:48px;
+  max-height:520px;
+  overflow:auto;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  color:#cfc2e5;
+  font:12px/1.7 "JetBrains Mono",monospace;
+}
+.reader-body .published-body.writeup .code-body::-webkit-scrollbar,
+.reader-body .published-body.writeup .terminal-body::-webkit-scrollbar,
+.reader-body .published-body.writeup .response-body::-webkit-scrollbar{display:none;width:0;height:0}
+.reader-body .published-body.writeup .terminal-body{background:linear-gradient(90deg,#0c1014,#090b0f)}
+.reader-body .published-body.writeup .terminal-body:before{
+  content:"●  ●  ●";
+  display:block;
+  color:#735b8f;
+  letter-spacing:3px;
+  margin-bottom:10px;
+}
+.reader-body .published-body.writeup .finding-card{border-color:rgba(169,140,255,.25);background:rgba(169,140,255,.035)}
+.reader-body .published-body.writeup .finding-card .severity{
+  color:#b59cff;
+  font:700 9px "JetBrains Mono",monospace;
+  padding:10px 13px;
+  border-bottom:1px solid rgba(154,132,210,.12);
+  letter-spacing:.08em;
+}
+.reader-body .published-body.writeup .finding-content{padding:14px}
+.reader-body .published-body.writeup .finding-content h2,
+.reader-body .published-body.writeup .finding-content h3{margin-top:0}
+.reader-body .published-body.writeup .callout{
+  padding:14px 16px;
+  border-left:3px solid #a98cff;
+  background:linear-gradient(90deg,rgba(155,112,255,.10),rgba(155,112,255,.025));
+}
+.reader-body .published-body.writeup .callout.warning{border-left-color:#d9a441}
+.reader-body .published-body.writeup .callout.success{border-left-color:#58c98c}
+.reader-body .published-body.writeup .callout strong{display:block;margin-bottom:5px}
+.reader-body .published-body.writeup .table-card{overflow:auto;scrollbar-width:none}
+.reader-body .published-body.writeup .table-card::-webkit-scrollbar{display:none}
+.reader-body .published-body.writeup .table-card table{width:100%;border-collapse:collapse;font-size:11px}
+.reader-body .published-body.writeup .table-card th,
+.reader-body .published-body.writeup .table-card td{padding:9px 11px;border-bottom:1px solid rgba(154,132,210,.14);text-align:left}
+.reader-body .published-body.writeup .table-card th{color:#d8c8f3}
+.reader-body .published-body.writeup .table-card td{color:#a69bb5}
+.reader-body .published-body.writeup .attack-card{padding:13px}
+.reader-body .published-body.writeup .attack-step{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px;
+  border-left:1px solid #5f477f;
+  color:#aaa2bd;
+}
+.reader-body .published-body.writeup .attack-step span{
+  width:23px;
+  height:23px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  flex:0 0 23px;
+  background:#171123;
+  color:#c9a8ff;
+  font:10px "JetBrains Mono",monospace;
+}
+.reader-body .published-body.writeup .mitre-card{padding:14px}
+.reader-body .published-body.writeup .mitre-card>strong{display:block}
+.reader-body .published-body.writeup .mitre-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.reader-body .published-body.writeup .mitre-tags span{
+  border:1px solid #563b7e;
+  background:#171023;
+  color:#bd9bff;
+  padding:5px 7px;
+  border-radius:6px;
+  font:10px "JetBrains Mono",monospace;
+}
+.reader-body .published-body.writeup .cvss-card{padding:15px;display:flex;align-items:center;gap:18px}
+.reader-body .published-body.writeup .cvss-score{font-size:34px;font-weight:800;color:#d8b8ff}
+.reader-body .published-body.writeup .cvss-label{color:#a99eb9;font-size:11px}
+.reader-body .published-body.writeup .cvss-badge{
+  margin-left:auto;
+  background:#a98cff;
+  color:#140e04;
+  padding:6px 9px;
+  border-radius:6px;
+  font:700 10px "JetBrains Mono",monospace;
+}
+.reader-body .published-body.writeup .evidence-card img{
+  width:100%;
+  display:block;
+  max-height:420px;
+  object-fit:contain;
+  background:#08070c;
+  border:0;
+  border-radius:0;
+  margin:0;
+}
+.reader-body .published-body.writeup .evidence-card figcaption{padding:9px;color:#91879f;font-size:10px}
+.reader-body .published-body.writeup img{max-width:100%;height:auto}
+
+/* The controls-collapse class lives on <body>, not on a descendant. */
+body.reader-mode.reader-controls-collapsed .reader-controls{max-height:210px!important;opacity:1!important;transform:none!important;pointer-events:auto!important}
+/* --------------------------------------------------------------------------
+   Final reader behavior
+   - Search/tags remain visible while the selected article is scrolled.
+   - The selected article always owns its own vertical scrollbar on desktop.
+   - The write-up catalogue remains independently scrollable with no visible
+     scrollbar.
+   -------------------------------------------------------------------------- */
+@media(min-width:701px){
+  body.reader-mode .reader-controls{
+    max-height:210px !important;
+    opacity:1 !important;
+    transform:none !important;
+    pointer-events:auto !important;
+  }
+
+  body.reader-mode .reader-list{
+    overflow-y:auto !important;
+    scrollbar-width:none !important;
+    -ms-overflow-style:none !important;
+  }
+  body.reader-mode .reader-list::-webkit-scrollbar{
+    width:0 !important;
+    height:0 !important;
+    display:none !important;
+  }
+
+  body.reader-mode .reader-content,
+  body.reader-mode.reader-controls-collapsed .reader-content{
+    height:calc(100vh - 190px) !important;
+    max-height:calc(100vh - 190px) !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    overscroll-behavior:contain;
+    scrollbar-width:thin !important;
+    scrollbar-color:rgba(169,140,255,.65) transparent !important;
+  }
+  body.reader-mode .reader-content::-webkit-scrollbar,
+  body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar{
+    width:7px;
+  }
+  body.reader-mode .reader-content::-webkit-scrollbar-track,
+  body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar-track{
+    background:transparent;
+  }
+  body.reader-mode .reader-content::-webkit-scrollbar-thumb,
+  body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar-thumb{
+    background:rgba(169,140,255,.65);
+    border-radius:999px;
+    border:2px solid transparent;
+    background-clip:padding-box;
+  }
+
+  /* Even if an old script/local state adds this class, never hide the
+     catalogue search field or filters. */
+  body.reader-mode.reader-controls-collapsed .reader-controls{max-height:210px!important;opacity:1!important;transform:none!important;pointer-events:auto!important}
+}
+
+@media(max-width:700px){
+  body.reader-mode .reader-controls{
+    max-height:none !important;
+    opacity:1 !important;
+    transform:none !important;
+    pointer-events:auto !important;
+  }
+  body.reader-mode .reader-list{
+    scrollbar-width:none !important;
+    -ms-overflow-style:none !important;
+  }
+  body.reader-mode .reader-list::-webkit-scrollbar{
+    width:0 !important;
+    height:0 !important;
+    display:none !important;
+  }
+}
+
+/* FINAL READER BEHAVIOR
+   Search/tags remain visible at all times. Only the selected article scrolls.
+   This intentionally overrides the older "collapse controls on first wheel"
+   experiment that used reader-controls-collapsed. */
+body.reader-mode .reader-controls,
+body.reader-mode.reader-controls-collapsed .reader-controls{
+  max-height:210px !important;
+  opacity:1 !important;
+  transform:none !important;
+  pointer-events:auto !important;
+}
+
+body.reader-mode .reader-sidebar{
+  overflow:hidden !important;
+}
+
+body.reader-mode .reader-content{
+  height:calc(100vh - 94px);
+  max-height:calc(100vh - 94px);
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(169,140,255,.65) transparent;
+}
+
+body.reader-mode .reader-content::-webkit-scrollbar{width:7px}
+body.reader-mode .reader-content::-webkit-scrollbar-track{background:transparent}
+body.reader-mode .reader-content::-webkit-scrollbar-thumb{
+  background:rgba(169,140,255,.65);
+  border-radius:999px;
+  border:2px solid transparent;
+  background-clip:padding-box;
+}
+body.reader-mode .reader-content::-webkit-scrollbar-thumb:hover{
+  background:rgba(169,140,255,.9);
+  background-clip:padding-box;
+}
+
+@media(max-width:700px){
+  body.reader-mode .reader-content{
+    height:auto;
+    max-height:none;
+    overflow:visible !important;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL PAGE SCROLL FIX
+   The write-up reader must use the document/page scrollbar. The article
+   content must NOT become a second viewport-height scrolling container.
+   The catalogue/search sidebar remains sticky so its search bar stays visible.
+   ========================================================================== */
+@media(min-width:701px){
+  body.reader-mode .reader-content,
+  body.reader-mode.reader-controls-collapsed .reader-content{
+    height:auto !important;
+    min-height:calc(100vh - 120px) !important;
+    max-height:none !important;
+    overflow:visible !important;
+    overscroll-behavior:auto !important;
+    padding-right:36px;
+    scrollbar-width:auto !important;
+  }
+
+  body.reader-mode .reader-content::-webkit-scrollbar,
+  body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar{
+    width:auto !important;
+  }
+
+  body.reader-mode .reader-content::-webkit-scrollbar-track,
+  body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar-track{
+    background:initial !important;
+  }
+
+  body.reader-mode .reader-content::-webkit-scrollbar-thumb,
+  body.reader-mode.reader-controls-collapsed .reader-content::-webkit-scrollbar-thumb{
+    background:initial !important;
+    border:initial !important;
+    border-radius:initial !important;
+    background-clip:initial !important;
+  }
+
+  /* Keep the search/tags/list column in place while the article is read. */
+  body.reader-mode .reader-sidebar{
+    position:sticky !important;
+    top:85px !important;
+    height:calc(100vh - 85px) !important;
+  }
+
+  /* Only the write-up catalogue list may have its own compact scroll when it
+     contains more entries than the sidebar can display. */
+  body.reader-mode .reader-list{
+    overflow-y:auto !important;
+    height:calc(100% - 210px) !important;
+  }
+}
+
+@media(max-width:700px){
+  body.reader-mode .reader-content{
+    height:auto !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+}
+
+/* ==========================================================================
+   GLOBAL PAGE SCROLLBAR
+   This targets the browser/document scrollbar only; editor/preview/list
+   scroll containers keep their own existing behavior.
+   ========================================================================== */
+html{
+  scrollbar-color:rgba(169,140,255,.78) transparent;
+  scrollbar-width:thin;
+}
+html::-webkit-scrollbar{
+  width:9px;
+  height:9px;
+}
+html::-webkit-scrollbar-track{
+  background:transparent;
+}
+html::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#c2a9ff 0%,#8f68e8 100%);
+  border-radius:999px;
+  border:2px solid transparent;
+  background-clip:padding-box;
+}
+html::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg,#d2c0ff 0%,#a37df5 100%);
+  background-clip:padding-box;
+}
+
+
+/* ==========================================================================
+   WRITE-UP READER: DOCUMENT SCROLL OWNER
+   Search/tags remain visible in the sticky catalogue while the article uses
+   normal page flow. No viewport-height article scrollbar.
+   ========================================================================== */
+body.reader-mode .reader-content,
+body.reader-mode.reader-controls-collapsed .reader-content{
+  height:auto !important;
+  min-height:calc(100vh - 120px) !important;
+  max-height:none !important;
+  overflow:visible !important;
+  overscroll-behavior:auto !important;
+}
+
+body.reader-mode .reader-sidebar,
+body.reader-mode.reader-controls-collapsed .reader-sidebar{
+  position:sticky !important;
+  top:85px !important;
+  height:fit-content !important;
+  max-height:none !important;
+  overflow:visible !important;
+}
+
+body.reader-mode .reader-controls,
+body.reader-mode.reader-controls-collapsed .reader-controls{
+  max-height:210px !important;
+  opacity:1 !important;
+  transform:none !important;
+  pointer-events:auto !important;
+}
+
+body.reader-mode .reader-list,
+body.reader-mode.reader-controls-collapsed .reader-list{
+  max-height:calc(100vh - 260px) !important;
+  height:auto !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(169,140,255,.45) transparent;
+}
+
+@media(max-width:700px){
+  body.reader-mode .reader-sidebar,
+  body.reader-mode.reader-controls-collapsed .reader-sidebar{
+    position:static !important;
+    height:auto !important;
+  }
+  body.reader-mode .reader-list,
+  body.reader-mode.reader-controls-collapsed .reader-list{
+    max-height:none !important;
+    overflow:visible !important;
+  }
+  body.reader-mode .reader-content,
+  body.reader-mode.reader-controls-collapsed .reader-content{
+    height:auto !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+}
+
+
+/* Global page scrollbar — intentionally separate from component/editor scrollbars. */
+html{
+  scrollbar-color:rgba(169,140,255,.82) transparent;
+  scrollbar-width:thin;
+}
+html::-webkit-scrollbar{width:9px;height:9px}
+html::-webkit-scrollbar-track{background:transparent}
+html::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#c2a9ff 0%,#8f68e8 100%);
+  border-radius:999px;
+  border:2px solid transparent;
+  background-clip:padding-box;
+}
+html::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg,#d2c0ff 0%,#a37df5 100%);
+  background-clip:padding-box;
+}

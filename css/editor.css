@@ -1,0 +1,2773 @@
+/* =========================================================
+   Sardhon Write-up Editor
+   Classic portfolio navigation + split/editor/preview workspace
+   ========================================================= */
+
+.editor-shell{
+  width:min(1450px,calc(100% - 42px));
+  margin:0 auto;
+  padding:68px 0 90px;
+}
+
+.editor-heading{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:30px;
+  margin-bottom:34px;
+}
+.editor-heading h1{
+  font-size:clamp(42px,6vw,72px);
+  line-height:.98;
+  letter-spacing:-.055em;
+  margin:8px 0 15px;
+}
+.editor-heading>div:first-child>p:last-child{
+  max-width:760px;
+  color:#aaa2bd;
+  font-size:15px;
+}
+.editor-heading-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  flex-wrap:wrap;
+}
+#connectFolderBtn.connected{
+  color:#b9f0c8;
+  border-color:rgba(126,242,154,.38);
+  background:#0d1210;
+}
+#connectFolderBtn.connected:hover{
+  border-color:rgba(126,242,154,.62);
+  box-shadow:0 0 12px rgba(126,242,154,.12);
+}
+@media(max-width:700px){
+  .editor-heading-actions{width:100%;justify-content:flex-start}
+}
+.save-state{
+  color:#8f879f;
+  font:600 10px "JetBrains Mono",monospace;
+  white-space:nowrap;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.save-state span{
+  width:6px;height:6px;border-radius:50%;
+  background:#7ef29a;
+  box-shadow:0 0 10px rgba(126,242,154,.45);
+}
+
+.editor-nav-back{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 11px;
+  border:1px solid rgba(154,132,210,.18);
+  background:#0e0c14;
+  border-radius:9px;
+  color:#aaa2bd;
+  font-size:12px;
+  transition:transform .42s cubic-bezier(.22,1,.36,1),color .42s ease,border-color .48s ease,box-shadow .58s ease;
+}
+.editor-nav-back:hover{
+  transform:translateY(-2px);
+  color:#d7ccff;
+  border-color:rgba(184,158,255,.68);
+  box-shadow:0 0 0 1px rgba(169,140,255,.14),0 0 9px rgba(169,140,255,.24),0 0 20px rgba(169,140,255,.10);
+}
+
+.panel{
+  position:relative;
+  isolation:isolate;
+  background:rgba(13,12,19,.66);
+  border:1px solid rgba(154,132,210,.18);
+  border-radius:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.14);
+  overflow:hidden;
+  transition:transform .58s cubic-bezier(.22,1,.36,1),border-color .58s ease,box-shadow .68s cubic-bezier(.22,1,.36,1);
+}
+.panel::after{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius:inherit;
+  pointer-events:none;
+  z-index:-1;
+  opacity:0;
+  border:1px solid rgba(181,153,255,.42);
+  box-shadow:0 0 14px rgba(169,140,255,.10),inset 0 0 12px rgba(169,140,255,.035);
+  transition:opacity .72s cubic-bezier(.22,1,.36,1);
+}
+.panel:hover{
+  transform:translateY(-3px);
+  border-color:rgba(169,140,255,.34);
+  box-shadow:0 24px 68px rgba(0,0,0,.22),0 0 24px rgba(169,140,255,.075);
+}
+.panel:hover::after{opacity:1}
+
+.meta-panel{margin-bottom:16px;overflow:visible;z-index:20}
+.meta-panel .panel-title,.meta-panel .meta-grid{position:relative;z-index:1}
+.panel-title{
+  min-height:58px;
+  padding:15px 18px;
+  border-bottom:1px solid rgba(154,132,210,.14);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+.panel-title>span:first-child{
+  color:#b59cff;
+  font:600 10px "JetBrains Mono",monospace;
+  letter-spacing:.14em;
+}
+.panel-title small{
+  color:#7d748f;
+  font:10px "JetBrains Mono",monospace;
+}
+.meta-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:10px;
+  padding:16px;
+}
+.meta-grid label{
+  color:#8f879f;
+  font:600 9px "JetBrains Mono",monospace;
+  letter-spacing:.08em;
+}
+.meta-grid label{position:relative;}
+.required-mark{
+  position:absolute;
+  top:-2px;
+  right:0;
+  width:15px;
+  height:15px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  color:#ff6f89;
+  font-size:10px;
+  line-height:1;
+  opacity:0;
+  transform:translateY(-1px);
+  pointer-events:none;
+}
+.required-mark i{font-size:10px;}
+.meta-grid label.invalid .required-mark{display:inline-flex;opacity:1;}
+.meta-grid input.invalid{
+  border-color:rgba(255,91,117,.78);
+  box-shadow:0 0 0 1px rgba(255,91,117,.12),0 0 13px rgba(255,91,117,.10);
+}
+.meta-grid input.invalid:focus{
+  border-color:rgba(255,91,117,.9);
+  box-shadow:0 0 0 1px rgba(255,91,117,.16),0 0 15px rgba(255,91,117,.12);
+}
+.meta-grid label.wide{grid-column:1 / -1}
+.meta-grid label.tags-field{grid-column:1 / 2; width:46%;}
+.meta-grid input{
+  display:block;
+  width:100%;
+  margin-top:7px;
+  padding:11px 12px;
+  border:1px solid rgba(154,132,210,.18);
+  border-radius:9px;
+  outline:0;
+  background:#0b0910;
+  color:#eeeaf7;
+  font-size:12px;
+  transition:border-color .35s ease,box-shadow .45s ease;
+}
+.meta-grid input:focus{
+  border-color:rgba(169,140,255,.55);
+  box-shadow:0 0 0 1px rgba(169,140,255,.10),0 0 14px rgba(169,140,255,.10);
+}
+
+.action-btn.danger{
+  color:#d6a1ad;
+  border-color:rgba(185,92,113,.22);
+}
+.action-btn.danger:hover{
+  color:#ffd7df;
+  border-color:rgba(220,112,137,.55);
+  box-shadow:0 0 0 1px rgba(220,112,137,.10),0 0 12px rgba(220,112,137,.16);
+}
+
+/* Keep the global interactive grid visible through the editor's translucent surfaces. */
+.editor-shell,.workspace,.examples,.actions-panel{position:relative;z-index:2}
+.meta-panel,.insert-panel,.editor-card,.examples,.actions-panel{background:rgba(13,12,19,.66)}
+
+.workspace{
+  display:grid;
+  grid-template-columns:245px minmax(0,1fr);
+  gap:16px;
+  align-items:start;
+}
+
+/*
+ * The editor is its own scrolling workspace.
+ * This prevents the page/document from taking over when the user is
+ * scrolling through a long Markdown write-up.
+ */
+.insert-panel{
+  height:max-content;
+  position:sticky;
+  top:96px;
+  align-self:start;
+  max-height:calc(100vh - 112px);
+  overflow:hidden;
+}
+.block-list{
+  display:grid;
+  gap:7px;
+  padding:16px 14px 0;
+  max-height:510px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  overscroll-behavior:contain;
+}
+.block-list::-webkit-scrollbar{display:none;width:0;height:0}
+.block-button,.tool-button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-align:left;
+  border:1px solid transparent;
+  background:#100d18;
+  color:#c9bfd8;
+  border-radius:10px;
+  padding:10px 11px;
+  font-size:11px;
+  cursor:pointer;
+  transition:transform .42s cubic-bezier(.22,1,.36,1),color .42s ease,border-color .48s ease,box-shadow .58s ease,background .42s ease;
+}
+.block-button i,.block-button b,.tool-button i{
+  width:18px;
+  text-align:center;
+  color:#b59cff;
+  font-size:12px;
+}
+.block-button:hover,.tool-button:hover{
+  transform:translateY(-2px);
+  color:#eee7ff;
+  border-color:rgba(184,158,255,.50);
+  box-shadow:0 0 0 1px rgba(169,140,255,.10),0 0 12px rgba(169,140,255,.18);
+}
+
+.saved-area{border-top:1px solid rgba(154,132,210,.14);margin:14px 14px 0;padding:13px 0 0}.saved-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.saved-head small{color:#7d748f;font:600 9px "JetBrains Mono",monospace;letter-spacing:.12em}.saved-head button{border:1px solid rgba(169,140,255,.2);background:#100d18;color:#a98cff;border-radius:7px;padding:6px 8px;font-size:9px;cursor:pointer}.saved-head button:hover{border-color:rgba(184,158,255,.55);color:#eee7ff}.saved-block-list{display:grid;gap:6px;max-height:170px;overflow:auto;scrollbar-width:none}.saved-block-list::-webkit-scrollbar{display:none}.saved-block-row{display:grid;grid-template-columns:1fr 30px;gap:5px}.saved-block-row .block-button{min-width:0}.saved-block-row .saved-delete{border:1px solid transparent;background:#100d18;color:#756b87;border-radius:8px;cursor:pointer}.saved-block-row .saved-delete:hover{color:#e46f83;border-color:rgba(228,111,131,.3)}.saved-empty{padding:6px 2px;color:#675e72;font-size:9px}
+
+.template-area{
+  border-top:1px solid rgba(154,132,210,.14);
+  margin:18px 14px 0;
+  padding:16px 0 16px;
+  display:grid;
+  gap:8px;
+}
+.template-area>small{
+  color:#7d748f;
+  font:600 9px "JetBrains Mono",monospace;
+  letter-spacing:.12em;
+  margin-bottom:1px;
+}
+
+.editor-card{min-width:0}
+.section-bar{
+  min-height:78px;
+  padding:13px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  border-bottom:1px solid rgba(154,132,210,.14);
+}
+.section-title{min-width:0}
+.section-title>span{display:block}
+.title-mode-row{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  margin-top:4px;
+}
+.title-mode-row strong{font-size:17px}
+.mode-switch{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  padding:3px;
+  border:1px solid rgba(154,132,210,.20);
+  border-radius:10px;
+  background:#0a0810;
+}
+.mode-btn{
+  border:1px solid transparent;
+  background:transparent;
+  color:#8f849f;
+  border-radius:7px;
+  padding:6px 11px;
+  font-size:10px;
+  font-weight:700;
+  cursor:pointer;
+  transition:color .42s ease,border-color .48s ease,background .42s ease,box-shadow .58s ease,transform .42s ease;
+}
+.mode-btn:hover{
+  transform:translateY(-1px);
+  color:#ddd1f3;
+  border-color:rgba(184,158,255,.48);
+  box-shadow:0 0 10px rgba(167,124,255,.14);
+}
+.mode-btn.active{
+  color:#eee8ff;
+  background:#a77cff;
+  border-color:#b895ff;
+  box-shadow:0 0 10px rgba(167,124,255,.22);
+}
+
+.toolbar-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.action-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  border:1px solid rgba(154,132,210,.22);
+  background:#0e0c14;
+  color:#cbbbe8;
+  border-radius:10px;
+  padding:9px 12px;
+  font-size:10px;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .42s cubic-bezier(.22,1,.36,1),color .42s ease,border-color .48s ease,background .42s ease,box-shadow .58s ease;
+}
+.action-btn i{font-size:10px}
+.action-btn:hover{
+  transform:translateY(-2px);
+  color:#e6ddff;
+  border-color:rgba(184,158,255,.68);
+  box-shadow:0 0 0 1px rgba(169,140,255,.13),0 0 9px rgba(169,140,255,.23),0 0 18px rgba(169,140,255,.09);
+}
+.action-btn.primary{
+  color:#0c0912;
+  background:#a98cff;
+  border-color:#a98cff;
+}
+.action-btn.primary:hover{
+  background:#b59cff;
+  border-color:#c7b7ff;
+  box-shadow:0 0 0 1px rgba(215,204,255,.20),0 0 10px rgba(198,177,255,.28),0 0 20px rgba(169,140,255,.13);
+}
+.action-btn.copied{
+  color:#b9f0c8;
+  border-color:rgba(126,242,154,.42);
+  box-shadow:0 0 0 1px rgba(126,242,154,.08),0 0 12px rgba(126,242,154,.12);
+}
+
+.editor-grid{
+  display:grid;
+  grid-template-columns:minmax(350px,1fr) minmax(390px,1fr);
+  height:clamp(560px,calc(100vh - 250px),760px);
+  min-height:560px;
+  overflow:hidden;
+}
+.source-pane{
+  min-width:0;
+  min-height:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  border-right:1px solid rgba(154,132,210,.14);
+  overflow:hidden;
+}
+.meta-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 125px 135px;
+  gap:8px;
+  padding:13px;
+  border-bottom:1px solid rgba(154,132,210,.12);
+}
+.meta-row input{
+  min-width:0;
+  background:#0b0910;
+  border:1px solid rgba(154,132,210,.18);
+  color:#d9d0e8;
+  border-radius:8px;
+  padding:9px;
+  font-size:11px;
+  outline:0;
+}
+.meta-row input:focus{
+  border-color:rgba(169,140,255,.55);
+  box-shadow:0 0 12px rgba(120,81,183,.16);
+}
+
+.toolbar{
+  display:flex;
+  align-items:center;
+  gap:2px;
+  padding:7px 10px;
+  border-bottom:1px solid rgba(154,132,210,.12);
+  background:rgba(10,8,14,.65);
+  flex-wrap:wrap;
+}
+.toolbar button{
+  width:30px;
+  height:29px;
+  border:1px solid transparent;
+  background:transparent;
+  color:#9f97b0;
+  border-radius:7px;
+  cursor:pointer;
+  font-size:10px;
+  font-weight:700;
+  transition:transform .42s cubic-bezier(.22,1,.36,1),color .42s ease,border-color .48s ease,box-shadow .58s ease;
+}
+.toolbar button:hover{
+  transform:translateY(-2px);
+  color:#d7ccff;
+  border-color:rgba(184,158,255,.55);
+  box-shadow:0 0 0 1px rgba(169,140,255,.10),0 0 9px rgba(169,140,255,.18);
+}
+
+#source{
+  flex:1 1 auto;
+  min-height:0;
+  height:100%;
+  width:100%;
+  resize:none;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#cfc4df;
+  padding:18px;
+  font:13px/1.75 "JetBrains Mono",monospace;
+  tab-size:2;
+  overflow:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+#source::-webkit-scrollbar{display:none;width:0;height:0}
+
+.source-foot{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 13px;
+  border-top:1px solid rgba(154,132,210,.12);
+  color:#756b87;
+  font:10px "JetBrains Mono",monospace;
+}
+
+.preview-pane{
+  min-width:0;
+  min-height:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.preview-head{
+  height:47px;
+  flex:0 0 47px;
+  padding:14px 16px;
+  border-bottom:1px solid rgba(154,132,210,.12);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:#706780;
+  font-size:10px;
+}
+.article-preview{
+  flex:1 1 auto;
+  min-height:0;
+  max-height:none;
+  overflow:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.article-preview::-webkit-scrollbar{display:none;width:0;height:0}
+
+.writeup{
+  padding:31px 34px 65px;
+}
+.writeup .eyebrow{
+  color:#aa8de0;
+  font:600 10px "JetBrains Mono",monospace;
+  letter-spacing:.13em;
+}
+.writeup h1{
+  font-size:clamp(38px,4vw,58px);
+  line-height:1.02;
+  margin:12px 0 25px;
+  letter-spacing:-.045em;
+}
+.writeup h2{font-size:27px;margin:42px 0 10px}
+.writeup h3{font-size:19px;margin:28px 0 8px}
+.writeup p,.writeup li{color:#aaa2bd;line-height:1.75}
+.writeup p{margin:9px 0}
+.writeup ul,.writeup ol{padding-left:23px}
+.writeup a{color:#b59cff}
+.writeup code{
+  font-family:"JetBrains Mono",monospace;
+  color:#d7ccff;
+  background:rgba(169,140,255,.07);
+  border:1px solid rgba(169,140,255,.12);
+  border-radius:5px;
+  padding:2px 5px;
+}
+.writeup blockquote{
+  margin:20px 0;
+  padding:13px 16px;
+  border-left:3px solid #a98cff;
+  background:rgba(169,140,255,.045);
+  color:#b7afc7;
+}
+.writeup hr{
+  border:0;
+  border-top:1px solid rgba(154,132,210,.18);
+  margin:28px 0;
+}
+
+.code-card,.terminal-card,.response-card,.finding-card,.callout,.table-card,.attack-card,.mitre-card,.cvss-card,.evidence-card{
+  margin:18px 0;
+  border:1px solid rgba(154,132,210,.18);
+  background:#0a0910;
+  border-radius:12px;
+  overflow:hidden;
+}
+.block-top{
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px 0 13px;
+  border-bottom:1px solid rgba(154,132,210,.12);
+  background:#0e0c15;
+  color:#8e82a0;
+  font:600 9px "JetBrains Mono",monospace;
+  letter-spacing:.10em;
+}
+.copy-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid rgba(169,140,255,.24);
+  background:#0e0c14;
+  color:#aaa2bd;
+  border-radius:7px;
+  padding:6px 9px;
+  font:600 10px Inter,system-ui,sans-serif;
+  cursor:pointer;
+  transition:transform .42s cubic-bezier(.22,1,.36,1),color .42s ease,border-color .48s ease,box-shadow .58s ease;
+}
+.copy-btn:hover{
+  transform:translateY(-2px);
+  color:#d7ccff;
+  border-color:rgba(184,158,255,.68);
+  box-shadow:0 0 0 1px rgba(169,140,255,.10),0 0 10px rgba(169,140,255,.20);
+}
+.copy-btn.copied{
+  color:#b9f0c8;
+  border-color:rgba(126,242,154,.42);
+}
+.copy-btn i{font-size:10px}
+.code-body,.terminal-body,.response-body{
+  display:block;
+  margin:0;
+  padding:16px;
+  min-height:48px;
+  max-height:520px;
+  overflow:auto;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  color:#cfc2e5;
+  font:12px/1.7 "JetBrains Mono",monospace;
+}
+.code-body::-webkit-scrollbar,.terminal-body::-webkit-scrollbar,.response-body::-webkit-scrollbar{display:none;width:0;height:0}
+.terminal-body{background:linear-gradient(90deg,#0c1014,#090b0f)}
+.terminal-body:before{
+  content:"●  ●  ●";
+  display:block;
+  color:#735b8f;
+  letter-spacing:3px;
+  margin-bottom:10px;
+}
+.finding-card{border-color:rgba(169,140,255,.25);background:rgba(169,140,255,.035)}
+.finding-card .severity{
+  color:#b59cff;
+  font:700 9px "JetBrains Mono",monospace;
+  padding:10px 13px;
+  border-bottom:1px solid rgba(154,132,210,.12);
+  letter-spacing:.08em;
+}
+.finding-content{padding:14px}
+.callout{
+  padding:14px 16px;
+  border-left:3px solid #a98cff;
+  background:linear-gradient(90deg,rgba(155,112,255,.10),rgba(155,112,255,.025));
+}
+.callout.warning{border-left-color:#d9a441}
+.callout.success{border-left-color:#58c98c}
+.callout strong{display:block;margin-bottom:5px}
+.table-card{overflow:auto;scrollbar-width:none}
+.table-card::-webkit-scrollbar{display:none}
+.table-card table{width:100%;border-collapse:collapse;font-size:11px}
+.table-card th,.table-card td{padding:9px 11px;border-bottom:1px solid rgba(154,132,210,.14);text-align:left}
+.table-card th{color:#d8c8f3}
+.table-card td{color:#a69bb5}
+.attack-card{padding:13px}
+.attack-step{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px;
+  border-left:1px solid #5f477f;
+  color:#aaa2bd;
+}
+.attack-step span{
+  width:23px;height:23px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#171123;color:#c9a8ff;
+  font:10px "JetBrains Mono",monospace;
+}
+.mitre-card{padding:14px}
+.mitre-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.mitre-tags span{
+  border:1px solid #563b7e;
+  background:#171023;
+  color:#bd9bff;
+  padding:5px 7px;
+  border-radius:6px;
+  font:10px "JetBrains Mono",monospace;
+}
+.cvss-card{padding:15px;display:flex;align-items:center;gap:18px}
+.cvss-score{font-size:34px;font-weight:800;color:#d8b8ff}
+.cvss-label{color:#a99eb9;font-size:11px}
+.cvss-badge{
+  margin-left:auto;
+  background:#a98cff;
+  color:#140e04;
+  padding:6px 9px;
+  border-radius:6px;
+  font:700 10px "JetBrains Mono",monospace;
+}
+.evidence-card img{
+  width:100%;
+  display:block;
+  max-height:250px;
+  object-fit:cover;
+}
+.evidence-card figcaption{
+  padding:9px;
+  color:#91879f;
+  font-size:10px;
+}
+
+.editor-card.view-editor .preview-pane{display:none}
+.editor-card.view-editor .editor-grid{grid-template-columns:1fr}
+.editor-card.view-editor .source-pane{border-right:0}
+.editor-card.view-editor #source{min-height:650px}
+.editor-card.view-preview .source-pane{display:none}
+.editor-card.view-preview .editor-grid{grid-template-columns:1fr}
+.editor-card.view-preview .article-preview{max-height:700px}
+.editor-card.view-split .source-pane{display:flex}
+.editor-card.view-split .preview-pane{display:flex}
+
+.examples{
+  margin-top:16px;
+}
+.examples .examples-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:20px;
+  padding:16px 18px;
+  border-bottom:1px solid rgba(154,132,210,.14);
+}
+.examples-head h2{margin:6px 0 0;font-size:20px}
+.examples-head>span:last-child{color:#756b87;font-size:11px}
+.example-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  padding:15px;
+}
+.example{
+  border:1px solid rgba(154,132,210,.16);
+  background:rgba(11,9,16,.80);
+  border-radius:12px;
+  padding:13px;
+  min-height:130px;
+  transition:transform .45s cubic-bezier(.22,1,.36,1),border-color .5s ease,box-shadow .55s ease;
+}
+.example:hover{
+  transform:translateY(-3px);
+  border-color:rgba(169,140,255,.38);
+  box-shadow:0 12px 28px rgba(106,68,173,.12);
+}
+.example label{
+  color:#a783e1;
+  font:600 9px "JetBrains Mono",monospace;
+}
+.example h3{font-size:13px;margin:7px 0}
+.example p{font-size:10px;color:#91879f;line-height:1.5}
+
+.actions-panel{margin-top:16px}
+.editor-message{
+  min-height:0;
+  padding:0 18px;
+  color:#a8e6ba;
+  font:600 10px "JetBrains Mono",monospace;
+}
+.publish-note{
+  margin:16px;
+  padding:16px 18px;
+  border:1px dashed rgba(154,132,210,.22);
+  border-radius:13px;
+  display:flex;
+  gap:12px;
+  flex-direction:column;
+  color:#9d95ab;
+  font-size:11px;
+}
+.publish-note strong{color:#e2dcef;font-size:12px}
+.publish-note code{
+  color:#b59cff;
+  font-family:"JetBrains Mono",monospace;
+}
+
+@media(max-width:1100px){
+  .meta-grid{grid-template-columns:1fr 1fr}
+  .meta-grid label.wide{grid-column:1 / -1}
+.meta-grid label.tags-field{grid-column:1 / 2; width:46%;}
+  .toolbar-actions{max-width:650px}
+  .workspace{grid-template-columns:220px minmax(0,1fr)}
+  .editor-grid{grid-template-columns:minmax(300px,1fr) minmax(320px,1fr)}
+  .example-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:900px){
+  .editor-heading{align-items:flex-start;flex-direction:column}
+  .workspace{grid-template-columns:1fr}
+  .insert-panel{order:2}
+  .editor-card{order:1}
+  .editor-grid{grid-template-columns:1fr}
+  .editor-card.view-split .source-pane{border-right:0;border-bottom:1px solid rgba(154,132,210,.14)}
+  .editor-card.view-split .preview-pane{min-height:650px}
+  .toolbar-actions{width:100%;max-width:none;justify-content:flex-start}
+}
+@media(max-width:700px){
+  .editor-shell{width:calc(100% - 30px);padding-top:48px}
+  .meta-grid{grid-template-columns:1fr}
+  .meta-grid label.wide{grid-column:auto}
+  .section-bar{align-items:flex-start;flex-direction:column}
+  .title-mode-row{width:100%;justify-content:space-between}
+  .toolbar-actions{width:100%}
+  .action-btn{flex:1;justify-content:center}
+  .meta-row{grid-template-columns:1fr}
+  .editor-grid{min-height:0}
+  .source-pane{min-height:600px}
+  .preview-pane{min-height:650px}
+  .writeup{padding:25px 20px 55px}
+  .writeup h1{font-size:36px}
+  .example-grid{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .title-mode-row{align-items:flex-start;flex-direction:column}
+  .toolbar-actions{display:grid;grid-template-columns:1fr 1fr}
+  .action-btn{width:100%}
+  .action-btn.primary{grid-column:1/-1}
+}
+
+.meta-grid .tags-field input{max-width:none; min-width:0;}
+
+@media(max-width:850px){
+  .meta-grid label.tags-field{grid-column:1 / -1; width:100%}
+  .meta-grid .tags-field input{max-width:100%; min-width:0}
+}
+
+/* Theme-matched custom calendar */
+.date-field{z-index:40}
+.date-control{display:flex;align-items:stretch;width:100%;margin-top:7px;border:1px solid rgba(154,132,210,.18);border-radius:9px;background:#0b0910;overflow:hidden;transition:border-color .35s ease,box-shadow .45s ease}
+.date-control:focus-within{border-color:rgba(169,140,255,.55);box-shadow:0 0 0 1px rgba(169,140,255,.10),0 0 14px rgba(169,140,255,.10)}
+.date-control.invalid{border-color:rgba(255,91,117,.78);box-shadow:0 0 0 1px rgba(255,91,117,.12),0 0 13px rgba(255,91,117,.10)}
+.date-control input{margin-top:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;flex:1;min-width:0}
+.date-picker-btn{width:46px;border:0;border-left:1px solid rgba(154,132,210,.15);background:rgba(169,140,255,.025);color:#9f91bd;display:grid;place-items:center;cursor:pointer;transition:color .25s ease,background .25s ease,box-shadow .3s ease}
+.date-picker-btn:hover{color:#d5c9ff;background:rgba(169,140,255,.08);box-shadow:inset 0 0 18px rgba(169,140,255,.06)}
+.date-picker-btn:focus-visible{outline:1px solid rgba(169,140,255,.6);outline-offset:-2px}
+.calendar-popover{position:fixed;left:0;top:0;width:min(360px,calc(100vw - 24px));max-height:min(430px,calc(100vh - 24px));overflow:auto;overscroll-behavior:contain;padding:14px;background:rgba(12,10,18,.985);border:1px solid rgba(169,140,255,.38);border-radius:14px;box-shadow:0 18px 55px rgba(0,0,0,.60),0 0 25px rgba(169,140,255,.12);backdrop-filter:blur(18px);z-index:1000}
+.calendar-popover::-webkit-scrollbar{width:0;height:0}
+.calendar-popover{scrollbar-width:none}
+.calendar-popover[hidden]{display:none}
+.calendar-head{display:grid;grid-template-columns:36px 1fr 36px;align-items:center;gap:8px;margin-bottom:12px}
+.calendar-head strong{color:#eeeaf7;text-align:center;font:700 12px Inter,sans-serif}
+.calendar-head button,.calendar-foot button{border:1px solid rgba(154,132,210,.18);background:#0e0c14;color:#a99dbb;border-radius:8px;min-height:32px;cursor:pointer;transition:.25s ease}
+.calendar-head button:hover,.calendar-foot button:hover{color:#d8ccff;border-color:rgba(169,140,255,.45);box-shadow:0 0 12px rgba(169,140,255,.12)}
+.calendar-weekdays,.calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calendar-weekdays{margin-bottom:5px}
+.calendar-weekdays span{text-align:center;color:#71697f;font:600 9px "JetBrains Mono",monospace;padding:5px 0}
+.calendar-day{height:36px;border:1px solid transparent;border-radius:8px;background:transparent;color:#c8c0d4;font:500 11px Inter,sans-serif;cursor:pointer;transition:background .2s ease,border-color .2s ease,color .2s ease,box-shadow .25s ease}
+.calendar-day:hover{background:rgba(169,140,255,.10);border-color:rgba(169,140,255,.28);color:#fff;box-shadow:0 0 12px rgba(169,140,255,.10)}
+.calendar-day.muted{color:#514b5a}
+.calendar-day.today{border-color:rgba(169,140,255,.35);color:#cbbdff}
+.calendar-day.selected{background:#a98cff;color:#100d18;border-color:#bda9ff;box-shadow:0 0 16px rgba(169,140,255,.25);font-weight:800}
+.calendar-foot{display:flex;justify-content:space-between;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(154,132,210,.12)}
+.calendar-foot button{padding:0 13px;color:#a98cff;font:600 10px "JetBrains Mono",monospace}
+
+/* Quiet, theme-matched publish warning instead of browser alerts. */
+.editor-notice{position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:rgba(4,3,8,.58);backdrop-filter:blur(8px);z-index:500}
+.editor-notice[hidden]{display:none}
+.notice-card{width:min(430px,100%);display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:14px;padding:18px;border:1px solid rgba(255,91,117,.35);border-radius:15px;background:rgba(14,12,20,.98);box-shadow:0 24px 70px rgba(0,0,0,.58),0 0 25px rgba(255,91,117,.08)}
+.notice-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;color:#ff8195;background:rgba(255,91,117,.08);border:1px solid rgba(255,91,117,.22)}
+.notice-copy strong{display:block;color:#eeeaf7;font-size:13px}
+.notice-copy p{margin:4px 0 0;color:#91879f;font-size:11px;line-height:1.5}
+.notice-ok{min-width:58px;padding:9px 13px;border:1px solid rgba(169,140,255,.32);border-radius:8px;background:#a98cff;color:#100d18;font:700 10px Inter,sans-serif;cursor:pointer;box-shadow:0 0 14px rgba(169,140,255,.12);transition:.25s ease}
+.notice-ok:hover{box-shadow:0 0 20px rgba(169,140,255,.22);transform:translateY(-1px)}
+
+@media(max-width:520px){
+  .calendar-popover{width:100%}
+  .notice-card{grid-template-columns:38px 1fr;}
+  .notice-ok{grid-column:1/-1;justify-self:end}
+}
+
+/* Calendar is portaled to <body> and positioned from the date button at runtime. */
+.meta-panel .date-field{overflow:visible}
+.meta-panel .date-control{position:relative;z-index:41}
+.calendar-popover{z-index:10000}
+.asset-input{display:none!important}
+
+/* Centered publish notification */
+.editor-notice{z-index:5000}
+.notice-card{grid-template-columns:42px minmax(0,1fr) auto}
+.notice-ok:focus-visible{outline:2px solid rgba(216,204,255,.8);outline-offset:2px}
+@media(max-width:520px){.calendar-popover{width:min(340px,calc(100vw - 24px))}}
+
+/* Publishing state: retain the original primary theme while showing an
+   in-button spinner and the word "Publishing". */
+#publishBtn.publishing{
+  cursor:wait;
+}
+#publishBtn.publishing:disabled{
+  opacity:1;
+  filter:none;
+}
+#publishBtn.publishing i{
+  width:1em;
+  text-align:center;
+}
+
+/* On narrow screens the two panes stack, but each pane still owns its
+   scrolling instead of forcing the document to scroll with the editor. */
+@media (max-width:900px){
+  .workspace{
+    grid-template-columns:1fr;
+  }
+  .insert-panel{
+    position:relative;
+    top:auto;
+    max-height:none;
+  }
+  .editor-grid{
+    grid-template-columns:1fr;
+    height:auto;
+    min-height:0;
+  }
+  .source-pane,
+  .preview-pane{
+    height:560px;
+    min-height:560px;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL EDITOR PAGE-SCROLL BEHAVIOR
+   The browser/page scrollbar owns the editor page. The editor and live preview
+   are not viewport-height nested scroll containers.
+   ========================================================================== */
+
+/* Let the editor workspace contribute its full height to the document. */
+.editor-grid{
+  height:auto !important;
+  min-height:720px !important;
+  overflow:visible !important;
+}
+
+/* Keep the Markdown textarea usable while allowing the page itself to continue
+   below the editor. The textarea is the only intentional text-entry scroller. */
+.source-pane{
+  height:720px !important;
+  min-height:720px !important;
+  overflow:hidden !important;
+}
+
+#source{
+  height:auto !important;
+  min-height:0 !important;
+  flex:1 1 auto !important;
+  overflow:auto !important;
+  overscroll-behavior:contain;
+}
+
+/* Preview grows with its rendered write-up instead of creating a second
+   viewport-height scrollbar. */
+.preview-pane{
+  height:auto !important;
+  min-height:720px !important;
+  overflow:visible !important;
+  align-self:stretch;
+}
+
+.article-preview{
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow:visible !important;
+  overscroll-behavior:auto !important;
+}
+
+/* The insert panel remains available while the long editor/preview is read.
+   Its complete block catalogue is page content rather than a 510px trap. */
+.insert-panel{
+  position:sticky !important;
+  top:96px !important;
+  max-height:none !important;
+  overflow:visible !important;
+}
+
+.block-list{
+  max-height:none !important;
+  overflow:visible !important;
+  overscroll-behavior:auto !important;
+}
+
+/* Numbered insert controls. */
+.block-button{
+  position:relative;
+  justify-content:flex-start;
+}
+.block-button .block-number{
+  flex:0 0 25px;
+  width:25px;
+  height:25px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(169,140,255,.18);
+  border-radius:7px;
+  background:rgba(169,140,255,.055);
+  color:#a98cff;
+  font:600 9px/1 "JetBrains Mono",monospace;
+  letter-spacing:.04em;
+}
+.block-button .block-label{
+  min-width:0;
+}
+
+/* The page/document scrollbar is the purple one globally. */
+html{
+  scrollbar-color:rgba(169,140,255,.78) transparent;
+  scrollbar-width:thin;
+}
+html::-webkit-scrollbar{
+  width:9px;
+  height:9px;
+}
+html::-webkit-scrollbar-track{
+  background:transparent;
+}
+html::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#c2a9ff 0%,#8f68e8 100%);
+  border-radius:999px;
+  border:2px solid transparent;
+  background-clip:padding-box;
+}
+html::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg,#d2c0ff 0%,#a37df5 100%);
+  background-clip:padding-box;
+}
+
+@media(max-width:900px){
+  .editor-grid{
+    min-height:0 !important;
+    height:auto !important;
+  }
+  .source-pane{
+    height:680px !important;
+    min-height:680px !important;
+  }
+  .preview-pane{
+    min-height:0 !important;
+    height:auto !important;
+  }
+  .article-preview{
+    height:auto !important;
+    overflow:visible !important;
+  }
+  .insert-panel{
+    position:relative !important;
+    top:auto !important;
+    max-height:none !important;
+  }
+  .block-list{
+    max-height:none !important;
+  }
+}
+
+@media(max-width:520px){
+  .source-pane{
+    height:650px !important;
+    min-height:650px !important;
+  }
+}
+
+
+/* ==========================================================================
+   EDITOR UX: ONE DOCUMENT SCROLL + REVEALABLE BLOCK CATALOGUE
+   ========================================================================== */
+html, body{
+  min-height:100%;
+  overflow-x:hidden;
+}
+body{
+  overflow-y:auto !important;
+}
+.editor-shell{
+  overflow:visible !important;
+}
+.workspace{
+  align-items:start !important;
+  overflow:visible !important;
+}
+.insert-panel{
+  position:sticky !important;
+  top:88px !important;
+  max-height:calc(100vh - 104px) !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(169,140,255,.58) transparent;
+}
+.insert-panel::-webkit-scrollbar{width:7px}
+.insert-panel::-webkit-scrollbar-track{background:transparent}
+.insert-panel::-webkit-scrollbar-thumb{background:rgba(169,140,255,.58);border-radius:99px}
+
+/* The textarea grows with its content, so focusing it never traps the mouse
+   wheel inside a fixed-height editor viewport. */
+.editor-grid{
+  align-items:start !important;
+  height:auto !important;
+  min-height:0 !important;
+  overflow:visible !important;
+}
+.source-pane{
+  height:auto !important;
+  min-height:0 !important;
+  overflow:visible !important;
+  display:flex;
+  flex-direction:column;
+}
+#source{
+  display:block !important;
+  width:100% !important;
+  height:520px !important;
+  min-height:520px !important;
+  max-height:none !important;
+  overflow:hidden !important;
+  resize:none !important;
+  overscroll-behavior:auto !important;
+  flex:none !important;
+}
+.preview-pane{
+  height:auto !important;
+  min-height:520px !important;
+  max-height:none !important;
+  overflow:visible !important;
+}
+.article-preview{
+  height:auto !important;
+  max-height:none !important;
+  overflow:visible !important;
+}
+@media(max-width:900px){
+  .insert-panel{
+    position:relative !important;
+    top:auto !important;
+    max-height:420px !important;
+  }
+  .source-pane,#source{
+    height:auto !important;
+  }
+  #source{min-height:420px !important}
+}
+
+/* Inserted-block hover controls */
+.inserted-block{
+  position:relative;
+  margin:18px 0;
+}
+.inserted-block-toolbar{
+  position:absolute;
+  top:-13px;
+  right:10px;
+  z-index:8;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:4px 5px 4px 9px;
+  border:1px solid rgba(169,140,255,.25);
+  border-radius:10px;
+  background:rgba(13,10,21,.96);
+  box-shadow:0 10px 28px rgba(0,0,0,.30);
+  opacity:0;
+  transform:translateY(4px);
+  pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease;
+}
+.inserted-block:hover .inserted-block-toolbar,
+.inserted-block:focus-within .inserted-block-toolbar{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+.inserted-block-toolbar > span{
+  color:#9e8bb9;
+  font:600 8px/1 "JetBrains Mono",monospace;
+  letter-spacing:.08em;
+}
+.inserted-block-toolbar > div{
+  display:flex;
+  gap:3px;
+}
+.inserted-block-toolbar button{
+  width:25px;
+  height:25px;
+  border:0;
+  border-radius:6px;
+  color:#c8b8ff;
+  background:rgba(169,140,255,.07);
+  cursor:pointer;
+  font:700 13px/1 Inter,sans-serif;
+}
+.inserted-block-toolbar button:hover{
+  background:rgba(169,140,255,.20);
+  color:#fff;
+}
+.inserted-block-toolbar button[data-block-action="delete"]:hover{
+  background:rgba(255,91,117,.18);
+  color:#ff9aac;
+}
+
+/* Template chooser */
+.template-modal{
+  position:fixed;
+  inset:0;
+  z-index:6000;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  background:rgba(4,3,8,.72);
+  backdrop-filter:blur(12px);
+}
+.template-modal[hidden]{display:none}
+.template-dialog{
+  width:min(760px,100%);
+  border:1px solid rgba(169,140,255,.24);
+  border-radius:20px;
+  background:linear-gradient(180deg,rgba(18,15,28,.99),rgba(10,8,16,.99));
+  box-shadow:0 30px 100px rgba(0,0,0,.60);
+  padding:24px;
+}
+.template-dialog-head{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
+  margin-bottom:20px;
+}
+.template-dialog-head h2{
+  margin:7px 0 4px;
+  color:#f0ecf8;
+  font-size:25px;
+}
+.template-dialog-head p{
+  margin:0;
+  color:#91879f;
+  font-size:12px;
+}
+.template-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.template-card{
+  min-height:100px;
+  padding:18px;
+  text-align:left;
+  border:1px solid rgba(154,132,210,.16);
+  border-radius:13px;
+  background:rgba(169,140,255,.035);
+  color:#e8e2f3;
+  cursor:pointer;
+  transition:.2s ease;
+}
+.template-card:hover{
+  border-color:rgba(169,140,255,.55);
+  background:rgba(169,140,255,.09);
+  transform:translateY(-2px);
+}
+.template-card strong{display:block;font-size:14px;margin-bottom:7px}
+.template-card span{display:block;color:#91879f;font:500 10px/1.5 "JetBrains Mono",monospace}
+.icon-button{
+  width:34px;height:34px;border:1px solid rgba(169,140,255,.18);
+  border-radius:9px;background:rgba(169,140,255,.05);color:#cbbdff;cursor:pointer;
+}
+@media(max-width:600px){.template-grid{grid-template-columns:1fr}.template-dialog{padding:18px}}
+
+.toolbar-spacer{flex:1}
+.editor-fullscreen{
+  position:fixed !important;
+  z-index:4000;
+  inset:18px;
+  margin:0 !important;
+  width:auto !important;
+  height:calc(100vh - 36px) !important;
+  max-height:none !important;
+  background:#0b0910 !important;
+  box-shadow:0 30px 100px rgba(0,0,0,.65);
+}
+.editor-fullscreen .editor-grid{height:calc(100vh - 150px) !important;overflow:hidden !important}
+.editor-fullscreen .source-pane,
+.editor-fullscreen .preview-pane{min-height:0 !important;height:100% !important;overflow:hidden !important}
+.editor-fullscreen #source{height:100% !important;min-height:0 !important;overflow:auto !important}
+.editor-fullscreen .article-preview{height:100% !important;overflow:auto !important}
+
+/* ==========================================================================
+   FINAL SPLIT EDITOR SCROLL FIX
+   The split workspace is a bounded two-pane workspace:
+   - Markdown textarea scrolls vertically when focused.
+   - Live preview scrolls vertically inside its own border.
+   - Neither pane can paint outside the editor card.
+   ========================================================================== */
+
+.editor-card{
+  min-width:0;
+  overflow:hidden !important;
+}
+
+.editor-grid{
+  height:680px !important;
+  min-height:520px !important;
+  max-height:680px !important;
+  overflow:hidden !important;
+  min-width:0 !important;
+  align-items:stretch !important;
+}
+
+.source-pane{
+  min-width:0 !important;
+  min-height:0 !important;
+  height:100% !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+#source{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  overflow-y:auto !important;
+  overflow-x:auto !important;
+  overscroll-behavior:contain !important;
+  resize:none !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:rgba(169,140,255,.78) transparent !important;
+}
+#source::-webkit-scrollbar{
+  width:8px !important;
+  height:8px !important;
+  display:block !important;
+}
+#source::-webkit-scrollbar-track{
+  background:transparent !important;
+}
+#source::-webkit-scrollbar-thumb{
+  background:rgba(169,140,255,.72) !important;
+  border-radius:999px !important;
+}
+#source::-webkit-scrollbar-thumb:hover{
+  background:rgba(191,165,255,.92) !important;
+}
+
+.preview-pane{
+  min-width:0 !important;
+  min-height:0 !important;
+  height:100% !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+.preview-head{
+  flex:0 0 47px !important;
+}
+
+.article-preview{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:rgba(169,140,255,.78) transparent !important;
+  box-sizing:border-box !important;
+}
+.article-preview::-webkit-scrollbar{
+  width:8px !important;
+  height:8px !important;
+  display:block !important;
+}
+.article-preview::-webkit-scrollbar-track{
+  background:transparent !important;
+}
+.article-preview::-webkit-scrollbar-thumb{
+  background:rgba(169,140,255,.72) !important;
+  border-radius:999px !important;
+}
+.article-preview::-webkit-scrollbar-thumb:hover{
+  background:rgba(191,165,255,.92) !important;
+}
+
+/* Never let a long command, URL, table, image or code block escape the preview. */
+.article-preview > *,
+.article-preview .inserted-block,
+.article-preview .code-card,
+.article-preview .terminal-card,
+.article-preview .response-card,
+.article-preview .finding-card,
+.article-preview .callout,
+.article-preview .table-card,
+.article-preview .attack-card,
+.article-preview .mitre-card,
+.article-preview .cvss-card,
+.article-preview .evidence-card,
+.article-preview .screenshot-card,
+.article-preview .command-output-card,
+.article-preview .credentials-card,
+.article-preview .ioc-card,
+.article-preview .vuln-summary,
+.article-preview .procedure-card,
+.article-preview .flow-card,
+.article-preview .timeline-card,
+.article-preview .tree-card,
+.article-preview .compare-card,
+.article-preview .lifecycle-card,
+.article-preview .remediation-card,
+.article-preview .impact-card,
+.article-preview .exploitability-card,
+.article-preview .recon-card,
+.article-preview .portscan-card,
+.article-preview .directory-card{
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+
+.article-preview img,
+.article-preview video,
+.article-preview iframe,
+.article-preview svg{
+  max-width:100% !important;
+  height:auto;
+}
+
+.article-preview pre,
+.article-preview code{
+  max-width:100% !important;
+  box-sizing:border-box !important;
+}
+.article-preview pre{
+  overflow-x:auto !important;
+  white-space:pre !important;
+}
+.article-preview table{
+  width:100% !important;
+  max-width:100% !important;
+  table-layout:fixed !important;
+  word-break:break-word !important;
+}
+.article-preview th,
+.article-preview td{
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+}
+.article-preview p,
+.article-preview li,
+.article-preview h1,
+.article-preview h2,
+.article-preview h3,
+.article-preview blockquote{
+  overflow-wrap:anywhere !important;
+}
+
+/* Keep inserted-block toolbars inside their containing block. */
+.article-preview .inserted-block{
+  position:relative;
+  overflow:visible;
+  padding-top:2px;
+}
+.article-preview .inserted-block-toolbar{
+  max-width:calc(100% - 12px);
+}
+.article-preview .inserted-block-toolbar > div{
+  flex-wrap:nowrap;
+}
+
+/* The block catalogue is independently scrollable so the lower blocks are
+   always reachable without changing the page scroll position. */
+.insert-panel{
+  max-height:calc(100vh - 112px) !important;
+  overflow:hidden !important;
+}
+.block-list{
+  max-height:calc(100vh - 250px) !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:rgba(169,140,255,.65) transparent !important;
+}
+.block-list::-webkit-scrollbar{
+  width:7px !important;
+  display:block !important;
+}
+.block-list::-webkit-scrollbar-track{background:transparent !important}
+.block-list::-webkit-scrollbar-thumb{
+  background:rgba(169,140,255,.58) !important;
+  border-radius:999px !important;
+}
+
+@media(max-width:900px){
+  .editor-grid{
+    height:720px !important;
+    min-height:520px !important;
+    max-height:720px !important;
+  }
+  .source-pane,
+  .preview-pane{
+    height:100% !important;
+  }
+}
+
+@media(max-width:700px){
+  .editor-grid{
+    height:auto !important;
+    max-height:none !important;
+    grid-template-columns:1fr !important;
+    overflow:visible !important;
+  }
+  .source-pane{
+    height:620px !important;
+    min-height:620px !important;
+    border-right:0 !important;
+    border-bottom:1px solid rgba(154,132,210,.14);
+  }
+  .preview-pane{
+    height:620px !important;
+    min-height:620px !important;
+  }
+  .article-preview{
+    overflow-y:auto !important;
+  }
+  .insert-panel{
+    position:relative !important;
+    top:auto !important;
+    max-height:none !important;
+  }
+  .block-list{
+    max-height:520px !important;
+  }
+}
+
+/* ============================================================================
+   FINAL SCROLL + INSERT PANEL FIX
+   Keep the page scrollable, while the three editor work areas remain usable
+   scroll regions. At their top/bottom edge JavaScript hands the wheel back to
+   the document, so the page can always continue moving.
+   ============================================================================ */
+html, body {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* The editor card itself must never become the page's scroll trap. */
+.editor-card {
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+.editor-grid {
+  height: 680px !important;
+  min-height: 520px !important;
+  max-height: 680px !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  align-items: stretch !important;
+}
+
+.source-pane,
+.preview-pane {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+#source {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  overscroll-behavior: auto !important;
+  resize: none !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(169,140,255,.78) transparent !important;
+}
+#source::-webkit-scrollbar { width: 8px !important; height: 8px !important; display: block !important; }
+#source::-webkit-scrollbar-track { background: transparent !important; }
+#source::-webkit-scrollbar-thumb { background: rgba(169,140,255,.72) !important; border-radius: 999px !important; }
+
+.article-preview {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(169,140,255,.78) transparent !important;
+  box-sizing: border-box !important;
+}
+.article-preview::-webkit-scrollbar { width: 8px !important; display: block !important; }
+.article-preview::-webkit-scrollbar-track { background: transparent !important; }
+.article-preview::-webkit-scrollbar-thumb { background: rgba(169,140,255,.72) !important; border-radius: 999px !important; }
+
+/* Insert catalogue: only this list scrolls. Saved blocks + templates stay
+   visible at the bottom of the panel instead of being pushed below the fold. */
+.insert-panel {
+  position: sticky !important;
+  top: 96px !important;
+  height: calc(100vh - 112px) !important;
+  max-height: calc(100vh - 112px) !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+.insert-panel > .panel-title {
+  flex: 0 0 auto !important;
+}
+.block-list {
+  flex: 1 1 auto !important;
+  min-height: 110px !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(169,140,255,.65) transparent !important;
+}
+.block-list::-webkit-scrollbar { width: 7px !important; display: block !important; }
+.block-list::-webkit-scrollbar-track { background: transparent !important; }
+.block-list::-webkit-scrollbar-thumb { background: rgba(169,140,255,.58) !important; border-radius: 999px !important; }
+.saved-area {
+  flex: 0 0 auto !important;
+  max-height: 145px !important;
+  overflow: auto !important;
+  scrollbar-width: thin !important;
+}
+.template-area {
+  flex: 0 0 auto !important;
+  max-height: 205px !important;
+  overflow: auto !important;
+  scrollbar-width: thin !important;
+}
+
+/* Never clip preview content horizontally. */
+.article-preview > *,
+.article-preview .inserted-block,
+.article-preview .code-card,
+.article-preview .terminal-card,
+.article-preview .response-card,
+.article-preview .finding-card,
+.article-preview .callout,
+.article-preview .table-card,
+.article-preview .attack-card,
+.article-preview .mitre-card,
+.article-preview .cvss-card,
+.article-preview .evidence-card,
+.article-preview .screenshot-card,
+.article-preview .command-output-card,
+.article-preview .credentials-card,
+.article-preview .ioc-card,
+.article-preview .vuln-summary,
+.article-preview .procedure-card,
+.article-preview .flow-card,
+.article-preview .timeline-card,
+.article-preview .tree-card,
+.article-preview .compare-card,
+.article-preview .lifecycle-card,
+.article-preview .remediation-card,
+.article-preview .impact-card,
+.article-preview .exploitability-card,
+.article-preview .recon-card,
+.article-preview .portscan-card,
+.article-preview .directory-card,
+.article-preview .directories-card,
+.article-preview .interactive-code-card,
+.article-preview .split-http-card,
+.article-preview .executive-summary,
+.article-preview .finding-id-card,
+.article-preview .mapping-card,
+.article-preview .references-card,
+.article-preview .spoiler-card {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.article-preview img,
+.article-preview video,
+.article-preview iframe,
+.article-preview svg {
+  max-width: 100% !important;
+  height: auto !important;
+}
+.article-preview pre,
+.article-preview code {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+.article-preview pre { overflow-x: auto !important; }
+
+/* On smaller screens the workspace becomes a normal stacked document. */
+@media (max-width: 900px) {
+  .insert-panel {
+    position: relative !important;
+    top: auto !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  .block-list {
+    flex: 0 0 auto !important;
+    max-height: 430px !important;
+  }
+  .editor-grid {
+    height: auto !important;
+    max-height: none !important;
+    grid-template-columns: 1fr !important;
+  }
+  .source-pane { height: 680px !important; min-height: 680px !important; }
+  .preview-pane { height: 680px !important; min-height: 680px !important; }
+}
+
+@media (max-width: 700px) {
+  .source-pane { height: 620px !important; min-height: 620px !important; }
+  .preview-pane { height: 620px !important; min-height: 620px !important; }
+  .block-list { max-height: 420px !important; }
+}
+
+/* ============================================================================
+   FINAL WORKSPACE LAYOUT FIX
+   - All three editor columns share one predictable height.
+   - Source + preview are real nested scroll regions.
+   - Wheel handoff in editor.js lets the document continue when an inner
+     scroller reaches its top/bottom edge.
+   - Metadata behaves like a hide-on-scroll sticky panel.
+   - Insert catalogue shows ~10 blocks at once and keeps the remaining blocks
+     available through its own scrollbar.
+   ============================================================================ */
+:root{--editor-workspace-height:680px}
+
+/* Metadata: visible while scrolling upward, tucked away while scrolling down. */
+.meta-panel{
+  position:sticky !important;
+  top:88px;
+  z-index:19;
+  transform:translateY(0);
+  opacity:1;
+  transition:transform .28s ease,opacity .22s ease;
+  will-change:transform,opacity;
+}
+.meta-panel.metadata-hidden{
+  transform:translateY(calc(-100% - 18px));
+  opacity:0;
+  pointer-events:none;
+}
+
+/* One exact height for INSERT / EDITOR / PREVIEW. */
+.workspace{align-items:start !important}
+.insert-panel{
+  height:var(--editor-workspace-height) !important;
+  max-height:var(--editor-workspace-height) !important;
+  min-height:var(--editor-workspace-height) !important;
+  position:sticky !important;
+  top:88px !important;
+  overflow:hidden !important;
+  display:flex;
+  flex-direction:column;
+}
+.editor-card{
+  height:var(--editor-workspace-height) !important;
+  min-height:var(--editor-workspace-height) !important;
+  max-height:var(--editor-workspace-height) !important;
+}
+.editor-grid{
+  height:var(--editor-workspace-height) !important;
+  min-height:var(--editor-workspace-height) !important;
+  max-height:var(--editor-workspace-height) !important;
+  overflow:hidden !important;
+  align-items:stretch !important;
+}
+.source-pane,
+.preview-pane{
+  height:100% !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow:hidden !important;
+}
+
+/* The editor itself must scroll when it contains more Markdown than fits. */
+#source{
+  flex:1 1 auto !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  resize:none !important;
+  overscroll-behavior:contain !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:rgba(169,140,255,.62) transparent !important;
+}
+#source::-webkit-scrollbar{display:block !important;width:7px;height:7px}
+#source::-webkit-scrollbar-track{background:transparent}
+#source::-webkit-scrollbar-thumb{background:rgba(169,140,255,.62);border-radius:99px}
+#source::-webkit-scrollbar-thumb:hover{background:rgba(190,166,255,.85)}
+
+/* Preview gets the same height and its own independent scroll position. */
+.preview-pane{display:flex !important;flex-direction:column !important}
+.article-preview{
+  flex:1 1 auto !important;
+  width:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  max-height:none !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:rgba(169,140,255,.62) transparent !important;
+}
+.article-preview::-webkit-scrollbar{display:block !important;width:7px;height:7px}
+.article-preview::-webkit-scrollbar-track{background:transparent}
+.article-preview::-webkit-scrollbar-thumb{background:rgba(169,140,255,.62);border-radius:99px}
+.article-preview::-webkit-scrollbar-thumb:hover{background:rgba(190,166,255,.85)}
+
+/* Prevent rendered content from escaping the preview border. */
+.article-preview,
+.article-preview *{min-width:0;max-width:100%}
+.article-preview .writeup{width:100%;max-width:none;overflow-wrap:anywhere;word-break:break-word}
+.article-preview pre,
+.article-preview code{max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere}
+.article-preview table{max-width:100%}
+.article-preview img{display:block;max-width:100%;height:auto}
+
+/* Insert catalogue: about ten entries visible, remaining entries scroll. */
+.block-list{
+  flex:0 0 430px !important;
+  height:430px !important;
+  max-height:430px !important;
+  min-height:430px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:rgba(169,140,255,.58) transparent !important;
+  padding-top:12px !important;
+}
+.block-list::-webkit-scrollbar{display:block !important;width:7px}
+.block-list::-webkit-scrollbar-track{background:transparent}
+.block-list::-webkit-scrollbar-thumb{background:rgba(169,140,255,.58);border-radius:99px}
+.block-button{
+  min-height:39px !important;
+  padding:7px 9px !important;
+}
+
+/* Saved blocks stay compact so the catalogue and template section remain
+   visible inside the same-height INSERT panel. */
+.saved-area{
+  flex:0 0 72px;
+  min-height:72px;
+  margin-top:8px !important;
+  padding-top:9px !important;
+  overflow:hidden;
+}
+.saved-block-list{
+  max-height:34px !important;
+  overflow:auto !important;
+}
+.template-area{
+  flex:0 0 145px;
+  min-height:145px;
+  margin-top:8px !important;
+  padding:10px 0 12px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:rgba(169,140,255,.45) transparent !important;
+}
+.template-area::-webkit-scrollbar{width:6px}
+.template-area::-webkit-scrollbar-thumb{background:rgba(169,140,255,.45);border-radius:99px}
+.template-area .tool-button{min-height:34px;padding:7px 9px}
+
+/* The outer document scrollbar remains the page scrollbar and stays purple. */
+html,body{overflow-x:hidden !important}
+body{overflow-y:auto !important}
+
+@media(max-width:900px){
+  :root{--editor-workspace-height:640px}
+  .meta-panel{position:relative !important;top:auto !important}
+  .meta-panel.metadata-hidden{transform:none;opacity:1;pointer-events:auto}
+  .insert-panel{
+    height:var(--editor-workspace-height) !important;
+    min-height:var(--editor-workspace-height) !important;
+    max-height:var(--editor-workspace-height) !important;
+    position:relative !important;
+    top:auto !important;
+  }
+  .editor-card{
+    height:var(--editor-workspace-height) !important;
+    min-height:var(--editor-workspace-height) !important;
+    max-height:var(--editor-workspace-height) !important;
+  }
+  .editor-grid{
+    height:var(--editor-workspace-height) !important;
+    min-height:var(--editor-workspace-height) !important;
+    max-height:var(--editor-workspace-height) !important;
+  }
+  .block-list{flex-basis:390px !important;height:390px !important;min-height:390px !important;max-height:390px !important}
+}
+
+@media(max-width:700px){
+  :root{--editor-workspace-height:620px}
+  .source-pane,.preview-pane{height:100% !important}
+}
+
+
+/* ==========================================================================
+   FINAL EDITOR IMMERSIVE SCROLL / STICKY CHROME
+   The page remains the only document scroller.  The three workspace columns
+   share a tall viewport-sized frame, while the metadata and site navigation
+   gently tuck away only after the workspace reaches the browser's top edge.
+   ========================================================================== */
+:root{
+  --editor-workspace-height:clamp(720px,calc(100vh - 104px),860px);
+  --editor-top-edge:92px;
+}
+
+/* Smoothly tuck the site navigation away once the editor takes over the viewport. */
+.navbar{
+  transform:translateY(0);
+  transition:transform .52s cubic-bezier(.22,1,.36,1),opacity .38s ease;
+  will-change:transform;
+}
+.navbar.editor-nav-hidden{
+  transform:translateY(-105%);
+  opacity:0;
+  pointer-events:none;
+}
+
+/* Metadata starts normally and remains visible until the workspace is close to
+   the top edge.  JS adds .metadata-hidden only after a few downward wheel steps. */
+.meta-panel{
+  transform:translateY(0);
+  opacity:1;
+  transition:transform .56s cubic-bezier(.22,1,.36,1),opacity .42s ease,box-shadow .42s ease;
+  will-change:transform,opacity;
+}
+.meta-panel.metadata-hidden{
+  transform:translateY(calc(-100% - 26px));
+  opacity:0;
+  pointer-events:none;
+}
+
+/* Give the three main workspace columns a little more breathing room while
+   keeping their bottoms aligned with one another. */
+.workspace{
+  align-items:stretch !important;
+}
+.insert-panel,
+.editor-card,
+.editor-grid{
+  height:var(--editor-workspace-height) !important;
+  min-height:var(--editor-workspace-height) !important;
+  max-height:var(--editor-workspace-height) !important;
+}
+
+.insert-panel{
+  overflow:hidden !important;
+}
+.block-list{
+  flex:0 0 470px !important;
+  height:470px !important;
+  min-height:470px !important;
+  max-height:470px !important;
+}
+
+/* Editor + preview stay exactly the same height. */
+.source-pane,
+.preview-pane{
+  height:100% !important;
+  min-height:0 !important;
+  max-height:none !important;
+}
+#source,
+.article-preview{
+  min-height:0 !important;
+  max-height:none !important;
+}
+
+/* The preview header must never be swallowed by the content area. */
+.preview-head{
+  position:relative;
+  z-index:3;
+  flex:0 0 52px !important;
+  height:52px !important;
+  min-height:52px !important;
+  background:rgba(10,8,14,.86);
+}
+.article-preview{
+  flex:1 1 auto !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+
+/* Keep long generated content inside the preview border. */
+.article-preview,
+.article-preview *{
+  min-width:0;
+  box-sizing:border-box;
+}
+.article-preview pre,
+.article-preview code,
+.article-preview table,
+.article-preview img,
+.article-preview iframe{
+  max-width:100%;
+}
+.article-preview pre,
+.article-preview code{
+  overflow-wrap:anywhere;
+  white-space:pre-wrap;
+}
+.article-preview table{
+  display:block;
+  overflow-x:auto;
+}
+
+/* On smaller screens use a slightly shorter but still matched workspace. */
+@media(max-width:900px){
+  :root{--editor-workspace-height:clamp(620px,calc(100vh - 92px),760px)}
+  .navbar.editor-nav-hidden{transform:translateY(-105%)}
+}
+
+/* ============================================================================
+   FINAL CLEAN WORKSPACE PATCH
+   - Export section is retired.
+   - Saved Blocks are retired so the template catalogue gets the freed space.
+   - INSERT / EDITOR / PREVIEW share one bounded height.
+   - Markdown scrolling stays inside the editor and never expands the document.
+   ============================================================================ */
+.actions-panel{display:none !important}
+
+.editor-card{
+  overflow:hidden !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+
+.editor-grid{
+  overflow:hidden !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+
+.source-pane,
+.preview-pane{
+  min-width:0 !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+
+#source{
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:100% !important;
+  max-height:none !important;
+  box-sizing:border-box !important;
+  resize:none !important;
+  overflow-y:auto !important;
+  overflow-x:auto !important;
+  overscroll-behavior:contain !important;
+  overflow-anchor:none !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:rgba(169,140,255,.78) transparent !important;
+}
+
+.article-preview{
+  min-width:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  max-height:none !important;
+  box-sizing:border-box !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain !important;
+  overflow-anchor:none !important;
+}
+
+/* No saved-block area: the complete block catalogue can use the panel height. */
+.saved-area{display:none !important}
+
+/* Keep all security blocks reachable, while giving templates the freed space. */
+.insert-panel{
+  overflow:hidden !important;
+}
+.block-list{
+  flex:0 0 430px !important;
+  height:430px !important;
+  min-height:430px !important;
+  max-height:430px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+.template-area{
+  flex:1 1 auto !important;
+  min-height:190px !important;
+  max-height:none !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  margin-top:8px !important;
+  padding-bottom:12px !important;
+}
+
+/* Keep the three columns aligned exactly, with no content leaking underneath. */
+.workspace{align-items:stretch !important}
+.insert-panel,
+.editor-card{
+  height:var(--editor-workspace-height) !important;
+  min-height:var(--editor-workspace-height) !important;
+  max-height:var(--editor-workspace-height) !important;
+}
+.editor-grid{
+  height:100% !important;
+  min-height:0 !important;
+  max-height:none !important;
+}
+
+/* The page, rather than the editor card, remains responsible for continuing
+   down to the rest of the document. */
+html,body{
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+}
+
+@media(max-width:900px){
+  .insert-panel,.editor-card{
+    height:var(--editor-workspace-height) !important;
+    min-height:var(--editor-workspace-height) !important;
+    max-height:var(--editor-workspace-height) !important;
+  }
+  .block-list{
+    flex-basis:390px !important;
+    height:390px !important;
+    min-height:390px !important;
+    max-height:390px !important;
+  }
+}
+
+
+/* ============================================================================
+   FINAL USER REQUEST PATCH — keep action buttons, fullscreen workspace
+   - Action buttons remain available in the editor header.
+   - Remove the old editor status divider/line.
+   - Remove the retired page footer gap.
+   - Give the three workspace columns the same viewport-sized frame.
+   - Editor and preview remain independently scrollable.
+   ============================================================================ */
+
+/* Keep the action toolbar visible; only the retired Export section is hidden. */
+.toolbar-actions{display:flex !important;}
+
+/* The old line/status strip below the Markdown textarea is not part of the
+   writing surface and visually cuts through the editor. */
+.source-foot{
+  display:none !important;
+  height:0 !important;
+  min-height:0 !important;
+  max-height:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  margin:0 !important;
+}
+
+/* No footer means the workspace can finish close to the bottom of the page. */
+.editor-shell{padding-bottom:20px !important;}
+
+/* Matched fullscreen workspace: INSERT / EDITOR / PREVIEW. */
+.workspace{align-items:stretch !important;}
+.insert-panel,
+.editor-card,
+.editor-grid{
+  height:var(--editor-workspace-height) !important;
+  min-height:var(--editor-workspace-height) !important;
+  max-height:var(--editor-workspace-height) !important;
+}
+
+.editor-card{min-width:0 !important;}
+.editor-grid{
+  overflow:hidden !important;
+  min-width:0 !important;
+}
+.source-pane,
+.preview-pane{
+  height:100% !important;
+  min-height:0 !important;
+  max-height:none !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+
+/* Editor: fixed viewport, internal vertical scroll. */
+#source{
+  display:block !important;
+  box-sizing:border-box !important;
+  height:calc(100% - 52px) !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  resize:none !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:rgba(169,140,255,.65) transparent !important;
+}
+
+/* Preview: fixed viewport, internal vertical scroll, header always visible. */
+.preview-pane{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+}
+.preview-head{
+  flex:0 0 52px !important;
+  height:52px !important;
+  min-height:52px !important;
+  box-sizing:border-box !important;
+  position:relative !important;
+  z-index:4 !important;
+}
+.article-preview{
+  flex:1 1 auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:rgba(169,140,255,.65) transparent !important;
+  box-sizing:border-box !important;
+}
+
+/* Keep rendered preview content inside its border. */
+.article-preview,
+.article-preview *{min-width:0;box-sizing:border-box;}
+.article-preview pre,
+.article-preview code{
+  max-width:100% !important;
+  white-space:pre-wrap !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+}
+.article-preview table{
+  max-width:100% !important;
+  display:block !important;
+  overflow-x:auto !important;
+}
+.article-preview img,
+.article-preview iframe{
+  max-width:100% !important;
+  height:auto !important;
+}
+
+/* Purple scrollbars for all three editor workspace regions. */
+#source::-webkit-scrollbar,
+.article-preview::-webkit-scrollbar,
+.block-list::-webkit-scrollbar,
+.template-area::-webkit-scrollbar{width:7px;height:7px;display:block;}
+#source::-webkit-scrollbar-track,
+.article-preview::-webkit-scrollbar-track,
+.block-list::-webkit-scrollbar-track,
+.template-area::-webkit-scrollbar-track{background:transparent;}
+#source::-webkit-scrollbar-thumb,
+.article-preview::-webkit-scrollbar-thumb,
+.block-list::-webkit-scrollbar-thumb,
+.template-area::-webkit-scrollbar-thumb{
+  background:rgba(169,140,255,.65);
+  border-radius:999px;
+}
+#source::-webkit-scrollbar-thumb:hover,
+.article-preview::-webkit-scrollbar-thumb:hover,
+.block-list::-webkit-scrollbar-thumb:hover,
+.template-area::-webkit-scrollbar-thumb:hover{background:rgba(190,166,255,.88);}
+
+@media(max-width:900px){
+  .editor-shell{padding-bottom:16px !important;}
+}
+
+
+/* ==========================================================================
+   AUTHORITATIVE EDITOR SCROLL MODEL — KEEP THIS BLOCK LAST\n   Based on the Write-ups reader's document-flow approach:\n   - the browser owns the outer/page scroll\n   - editor and preview have bounded internal scroll only\n   - when an internal pane reaches an edge, wheel input chains to the page\n   - no workspace-level scrollbar and no overflow painting outside the card\n   ========================================================================== */
+html, body {
+  min-height: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.editor-shell {
+  overflow: visible !important;
+  min-height: 0 !important;
+}
+
+.workspace {
+  display: grid !important;
+  grid-template-columns: 245px minmax(0, 1fr) !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+  overflow: visible !important;
+  min-width: 0 !important;
+}
+
+/* One shared viewport height for the insert column and editor card. */
+.insert-panel,
+.editor-card {
+  height: clamp(620px, calc(100vh - 175px), 760px) !important;
+  min-height: 620px !important;
+  max-height: 760px !important;
+  box-sizing: border-box !important;
+}
+
+/* The insert panel may scroll internally, but its scrollbar is intentionally
+   invisible so it never creates the large secondary purple rail. */
+.insert-panel {
+  position: sticky !important;
+  top: 88px !important;
+  align-self: start !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: none !important;
+  overscroll-behavior: contain !important;
+}
+.insert-panel::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+/* Let the catalogue show a useful amount before its own hidden scroll takes
+   over. Templates stay in the same scroll flow instead of being clipped. */
+.block-list {
+  max-height: none !important;
+  overflow: visible !important;
+}
+.template-area {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.editor-card {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  align-self: stretch !important;
+}
+
+.editor-grid {
+  display: grid !important;
+  grid-template-columns: minmax(350px, 1fr) minmax(390px, 1fr) !important;
+  height: calc(100% - 78px) !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  align-items: stretch !important;
+}
+
+.source-pane,
+.preview-pane {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: none !important;
+  box-sizing: border-box !important;
+}
+
+.source-pane {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.source-pane .toolbar {
+  flex: 0 0 auto !important;
+}
+
+#source {
+  display: block !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  resize: none !important;
+  overscroll-behavior: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(169,140,255,.65) transparent !important;
+}
+#source::-webkit-scrollbar {
+  width: 7px !important;
+  height: 7px !important;
+}
+#source::-webkit-scrollbar-track { background: transparent !important; }
+#source::-webkit-scrollbar-thumb {
+  background: rgba(169,140,255,.65) !important;
+  border-radius: 999px !important;
+}
+
+.source-foot {
+  flex: 0 0 auto !important;
+}
+
+.preview-pane {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.preview-head {
+  flex: 0 0 52px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+.article-preview {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(169,140,255,.65) transparent !important;
+}
+.article-preview::-webkit-scrollbar { width: 7px !important; }
+.article-preview::-webkit-scrollbar-track { background: transparent !important; }
+.article-preview::-webkit-scrollbar-thumb {
+  background: rgba(169,140,255,.65) !important;
+  border-radius: 999px !important;
+}
+
+/* Prevent rendered blocks from escaping the preview viewport and causing the
+   editor card to paint over the page below it. */
+.article-preview > *,
+.article-preview .inserted-block,
+.article-preview .code-card,
+.article-preview .terminal-card,
+.article-preview .response-card,
+.article-preview .finding-card,
+.article-preview .callout,
+.article-preview .table-card,
+.article-preview .attack-card,
+.article-preview .mitre-card,
+.article-preview .cvss-card,
+.article-preview .evidence-card,
+.article-preview .command-output-card,
+.article-preview .credentials-card,
+.article-preview .ioc-card,
+.article-preview .vuln-summary,
+.article-preview .procedure-card,
+.article-preview .flow-card,
+.article-preview .timeline-card,
+.article-preview .tree-card,
+.article-preview .compare-card,
+.article-preview .lifecycle-card,
+.article-preview .remediation-card,
+.article-preview .impact-card,
+.article-preview .exploitability-card {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+.article-preview pre,
+.article-preview code,
+.article-preview table {
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+.article-preview pre { white-space: pre-wrap !important; overflow: auto !important; }
+.article-preview img,
+.article-preview iframe { max-width: 100% !important; height: auto !important; }
+
+/* Do not animate the large workspace itself while the user is scrolling. */
+.editor-card:hover,
+.insert-panel:hover { transform: none !important; }
+
+@media (max-width: 900px) {
+  .workspace { grid-template-columns: 1fr !important; }
+  .insert-panel {
+    position: relative !important;
+    top: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 430px !important;
+  }
+  .editor-card {
+    height: 680px !important;
+    min-height: 680px !important;
+  }
+  .editor-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .preview-pane { min-height: 0 !important; }
+}
+
+/* ==========================================================================
+   END AUTHORITATIVE EDITOR SCROLL MODEL\n   ========================================================================== */
+
+/* ============================================================================
+   FINAL VISUAL CLEANUP — layout only
+   Keep the existing scroll behavior untouched.
+   ============================================================================ */
+
+/* Give the three-column workspace more vertical room without changing its
+   scrolling/edge handoff behavior. */
+:root{
+  --editor-workspace-height:clamp(760px,calc(100vh - 84px),900px);
+}
+
+/* Keep the editor header fully inside its card and vertically centered. */
+.editor-card > .section-bar{
+  min-height:96px !important;
+  height:auto !important;
+  box-sizing:border-box !important;
+  padding:16px 18px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:20px !important;
+  overflow:visible !important;
+}
+
+.editor-card .section-title{
+  flex:1 1 auto !important;
+  min-width:220px !important;
+  overflow:visible !important;
+}
+
+.editor-card .title-mode-row{
+  align-items:center !important;
+  min-height:34px !important;
+  margin-top:6px !important;
+  white-space:nowrap !important;
+}
+
+.editor-card .toolbar-actions{
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  overflow:visible !important;
+}
+
+.editor-card .toolbar-actions .action-btn{
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+
+/* Remove the status strip/extra divider underneath the Markdown editor. */
+.editor-card .source-foot{
+  display:none !important;
+  height:0 !important;
+  min-height:0 !important;
+  max-height:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+}
+
+/* INSERT: the block catalogue gets the available upper space and the
+   templates stay in their own non-overlapping section underneath it. */
+.insert-panel{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+}
+
+.insert-panel > .panel-title{
+  flex:0 0 auto !important;
+}
+
+.insert-panel > .block-list{
+  flex:1 1 auto !important;
+  width:auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  box-sizing:border-box !important;
+  padding-bottom:10px !important;
+}
+
+.insert-panel > .template-area{
+  flex:0 0 auto !important;
+  width:auto !important;
+  min-height:0 !important;
+  max-height:280px !important;
+  margin:8px 14px 0 !important;
+  padding:12px 0 14px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  box-sizing:border-box !important;
+}
+
+/* Never let the catalogue paint underneath the template heading. */
+.insert-panel > .block-list,
+.insert-panel > .template-area{
+  position:relative !important;
+  z-index:1 !important;
+}
+
+/* The workspace itself stays aligned and contained; no new scrolling layer. */
+.workspace{
+  align-items:stretch !important;
+}
+
+.editor-card,
+.editor-grid,
+.source-pane,
+.preview-pane{
+  box-sizing:border-box !important;
+}
+
+/* Preserve the existing editor/preview scroll areas exactly; this only
+   reserves the taller frame for them. */
+.editor-grid{
+  height:calc(100% - 96px) !important;
+  min-height:0 !important;
+  max-height:none !important;
+}
+
+@media (max-width:1100px){
+  .editor-card > .section-bar{
+    min-height:112px !important;
+    align-items:center !important;
+  }
+
+  .editor-card .toolbar-actions{
+    max-width:60% !important;
+  }
+}
+
+@media (max-width:900px){
+  :root{
+    --editor-workspace-height:clamp(680px,calc(100vh - 70px),820px);
+  }
+
+  .editor-card > .section-bar{
+    min-height:120px !important;
+    flex-wrap:wrap !important;
+  }
+
+  .editor-card .toolbar-actions{
+    max-width:none !important;
+    width:100% !important;
+    justify-content:flex-start !important;
+  }
+
+  .editor-grid{
+    height:calc(100% - 120px) !important;
+  }
+}
+
+/* ================================================================
+   FINAL REQUESTED SIZE / HEADER ADJUSTMENT
+   - Taller three-column editor workspace
+   - Compact editor header with no empty area underneath
+   - Action buttons stay vertically aligned with the header
+   - Existing scroll behavior is intentionally untouched
+   ================================================================ */
+:root{
+  --editor-workspace-height:760px;
+}
+
+.workspace{
+  align-items:start !important;
+}
+
+.insert-panel,
+.editor-card{
+  height:var(--editor-workspace-height) !important;
+  min-height:var(--editor-workspace-height) !important;
+  max-height:var(--editor-workspace-height) !important;
+}
+
+.editor-card > .section-bar{
+  height:80px !important;
+  min-height:80px !important;
+  max-height:80px !important;
+  box-sizing:border-box !important;
+  padding:12px 18px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:18px !important;
+  overflow:visible !important;
+}
+
+.editor-card .section-title,
+.editor-card .title-mode-row,
+.editor-card .toolbar-actions{
+  align-self:center !important;
+}
+
+.editor-card .toolbar-actions{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  flex-wrap:nowrap !important;
+  gap:7px !important;
+}
+
+.editor-card .toolbar-actions .action-btn{
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+
+.editor-card > .editor-grid{
+  height:calc(var(--editor-workspace-height) - 80px) !important;
+  min-height:calc(var(--editor-workspace-height) - 80px) !important;
+  max-height:calc(var(--editor-workspace-height) - 80px) !important;
+}
+
+@media(max-width:1100px){
+  .editor-card > .section-bar{
+    height:96px !important;
+    min-height:96px !important;
+    max-height:96px !important;
+  }
+  .editor-card > .editor-grid{
+    height:calc(var(--editor-workspace-height) - 96px) !important;
+    min-height:calc(var(--editor-workspace-height) - 96px) !important;
+    max-height:calc(var(--editor-workspace-height) - 96px) !important;
+  }
+}
+
+@media(max-width:900px){
+  :root{--editor-workspace-height:680px}
+  .editor-card > .section-bar{
+    height:auto !important;
+    min-height:120px !important;
+    max-height:none !important;
+    flex-wrap:wrap !important;
+  }
+  .editor-card > .editor-grid{
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+  }
+}
+
+
+/* FINAL VIEW MODE OVERRIDE
+   The mode buttons control the actual pane visibility. These rules are
+   intentionally last so older workspace/scroll patches cannot override them. */
+.editor-card.view-editor .editor-grid {
+  grid-template-columns: 1fr !important;
+}
+.editor-card.view-editor .source-pane {
+  display: flex !important;
+  border-right: 0 !important;
+}
+.editor-card.view-editor .preview-pane {
+  display: none !important;
+}
+
+.editor-card.view-preview .editor-grid {
+  grid-template-columns: 1fr !important;
+}
+.editor-card.view-preview .source-pane {
+  display: none !important;
+}
+.editor-card.view-preview .preview-pane {
+  display: flex !important;
+}
+
+.editor-card.view-split .editor-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+.editor-card.view-split .source-pane,
+.editor-card.view-split .preview-pane {
+  display: flex !important;
+}
+
+/* Block manipulation controls are intentionally not part of rendered
+   write-ups/portfolio output. */
+.inserted-block-toolbar {
+  display: none !important;
+}

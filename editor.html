@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sardhon Kramsa — live admin cybersecurity write-up editor.">
+  <title>Write-up Editor | Sardhon Kramsa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/editor.css">
+  <link rel="stylesheet" href="css/writeup.css">
+</head>
+<body>
+<div class="interactive-grid" id="interactiveGrid" aria-hidden="true"></div>
+<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+
+<header class="navbar">
+  <a href="index.html" class="logo" aria-label="Sardhon Kramsa home">
+    <span>SK</span> SARDHON<span>.</span>
+  </a>
+  <nav class="nav-links" id="navLinks" aria-label="Primary navigation">
+    <a href="index.html#about">About</a>
+    <a href="index.html#projects">Projects</a>
+    <a href="writeups.html" class="editor-writeups-nav">Write-ups</a>
+    <a href="editor.html" class="active">Editor</a>
+    <a href="index.html#certifications">Certifications</a>
+    <a href="index.html#skills">Skills</a>
+    <a href="index.html#contact">Contact</a>
+  </nav>
+  <div class="nav-actions">
+    <a class="editor-nav-back" href="index.html" title="Back to portfolio" aria-label="Back to portfolio">
+      <i class="fa-solid fa-arrow-left"></i><span>Back</span>
+    </a>
+  </div>
+</header>
+
+<main class="editor-shell">
+  <input id="screenshotInput" class="asset-input" type="file" accept="image/*" hidden aria-label="Choose screenshot">
+  <input id="evidenceInput" class="asset-input" type="file" accept="image/*" hidden aria-label="Choose evidence image">
+
+  <div class="editor-heading">
+    <div>
+      <p class="eyebrow"><b class="pulse"></b> LOCAL WRITE-UP WORKSPACE</p>
+      <h1>Build a security write-up.</h1>
+      <p>Write in Markdown, insert security-focused blocks, preview it live, save drafts locally, then publish directly to the live Write-ups page.</p>
+    </div>
+    <div class="editor-heading-actions">
+      <button id="newWriteupBtn" class="action-btn" type="button" title="Start a new write-up from a template">
+        <i class="fa-solid fa-plus"></i><span>New Write-up</span>
+      </button>
+      <button id="connectFolderBtn" class="action-btn" type="button" title="Optional local folder connection; live publishing uses the secure server">
+        <i class="fa-solid fa-folder-open"></i><span>Connect Portfolio Folder</span>
+      </button>
+      <div class="save-state" id="saveState"><span></span> Autosave ready</div>
+    </div>
+  </div>
+
+  <section class="meta-panel panel">
+    <div class="panel-title"><span>01 / METADATA</span><small>Used for the write-up page and portfolio card.</small></div>
+    <div class="meta-grid">
+      <label>Title <span class="required-mark" aria-hidden="true"><i class="fa-solid fa-circle-exclamation"></i></span><input id="title" placeholder="TryHackMe — Skynet" maxlength="120" required aria-required="true"></label>
+      <label>Category <span class="required-mark" aria-hidden="true"><i class="fa-solid fa-circle-exclamation"></i></span><input id="category" placeholder="TRYHACKME" maxlength="40" required aria-required="true"></label>
+      <label class="date-field">Date <span class="required-mark" aria-hidden="true"><i class="fa-solid fa-circle-exclamation"></i></span>
+  <input id="date" type="hidden" required aria-required="true">
+  <div class="date-control" id="dateControl">
+    <input id="dateDisplay" type="text" readonly aria-label="Selected date" placeholder="Select date">
+    <button id="datePickerBtn" class="date-picker-btn" type="button" aria-label="Open calendar" aria-expanded="false"><i class="fa-regular fa-calendar"></i></button>
+  </div>
+  <div id="datePopover" class="calendar-popover" hidden>
+    <div class="calendar-head">
+      <button id="calendarPrev" type="button" aria-label="Previous month"><i class="fa-solid fa-chevron-left"></i></button>
+      <strong id="calendarMonth">September 2026</strong>
+      <button id="calendarNext" type="button" aria-label="Next month"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+    <div class="calendar-weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+    <div id="calendarDays" class="calendar-days"></div>
+    <div class="calendar-foot"><button id="calendarClear" type="button">Clear</button><button id="calendarToday" type="button">Today</button></div>
+  </div>
+</label>
+      <label class="wide">Excerpt <span class="required-mark" aria-hidden="true"><i class="fa-solid fa-circle-exclamation"></i></span><input id="excerpt" placeholder="Enumeration, exploitation and privilege escalation." maxlength="220" required aria-required="true"></label>
+      <label class="tags-field">Tags <span class="required-mark" aria-hidden="true"><i class="fa-solid fa-circle-exclamation"></i></span><input id="tags" placeholder="tryhackme, web, linux" required aria-required="true"></label>
+    </div>
+  </section>
+
+  <section class="workspace">
+    <aside class="insert-panel panel">
+      <div class="panel-title">
+        <span>02 / INSERT</span>
+        <small>Security blocks</small>
+      </div>
+      <div id="blockButtons" class="block-list"></div>
+      <div class="template-area">
+        <small>TEMPLATES</small>
+        <button class="tool-button" data-template="ctf"><i class="fa-solid fa-flag"></i> CTF Write-up</button>
+        <button class="tool-button" data-template="pentest"><i class="fa-solid fa-crosshairs"></i> Pentest Report</button>
+        <button class="tool-button" data-template="finding"><i class="fa-solid fa-bug"></i> Vulnerability Finding</button>
+        <button class="tool-button" data-template="soc"><i class="fa-solid fa-shield-halved"></i> SOC Investigation</button>
+        <button class="tool-button" data-template="blank"><i class="fa-regular fa-file"></i> Blank</button>
+      </div>
+    </aside>
+
+    <section class="editor-card panel view-split">
+      <div class="section-bar">
+        <div class="section-title">
+          <span class="eyebrow">03 / EDITOR</span>
+          <div class="title-mode-row">
+            <strong>Write-up</strong>
+            <div class="mode-switch" role="tablist" aria-label="Editor view mode">
+              <button class="mode-btn" data-mode="editor" role="tab" aria-selected="false">Editor</button>
+              <button class="mode-btn" data-mode="preview" role="tab" aria-selected="false">Preview</button>
+              <button class="mode-btn active" data-mode="split" role="tab" aria-selected="true">Split</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <button id="saveBtn" class="action-btn" title="Save draft locally"><i class="fa-regular fa-floppy-disk"></i><span>Save Draft</span></button>
+          <button id="clearDraftBtn" class="action-btn danger" title="Clear draft and reset metadata"><i class="fa-regular fa-trash-can"></i><span>Clear Draft</span></button>
+          <button id="copyEntryBtn" class="action-btn" title="Copy portfolio entry"><i class="fa-regular fa-copy"></i><span>Copy Portfolio Entry</span></button>
+          <button id="copyHtmlBtn" class="action-btn" title="Copy generated HTML"><i class="fa-regular fa-copy"></i><span>Copy HTML</span></button>
+          <button id="exportMdBtn" class="action-btn" title="Download Markdown"><i class="fa-solid fa-download"></i><span>Download Markdown</span></button>
+          <button id="publishBtn" class="action-btn primary" title="Publish write-up"><i class="fa-solid fa-cloud-arrow-up"></i><span>Publish Write-up</span></button>
+        </div>
+      </div>
+
+      <div class="editor-grid">
+        <div class="source-pane">
+          <div class="toolbar" role="toolbar" aria-label="Markdown toolbar">
+            <button data-action="h1" title="Heading 1">H1</button>
+            <button data-action="h2" title="Heading 2">H2</button>
+            <button data-action="h3" title="Heading 3">H3</button>
+            <button data-action="bold" title="Bold"><b>B</b></button>
+            <button data-action="italic" title="Italic"><i>I</i></button>
+            <button data-action="code" title="Inline code">&lt;/&gt;</button>
+            <button data-action="codeblock" title="Code block"><i class="fa-solid fa-terminal"></i></button>
+            <button data-action="quote" title="Quote"><i class="fa-solid fa-quote-left"></i></button>
+            <button data-action="ul" title="Bullet list"><i class="fa-solid fa-list"></i></button>
+            <button data-action="ol" title="Numbered list"><i class="fa-solid fa-list-ol"></i></button>
+            <button data-action="link" title="Link"><i class="fa-solid fa-link"></i></button>
+            <button data-action="image" title="Image"><i class="fa-regular fa-image"></i></button>
+            <button data-action="finding" title="Finding block"><i class="fa-solid fa-bug"></i></button>
+            <span class="toolbar-spacer"></span>
+            <button id="editorFullscreenBtn" type="button" title="Fullscreen editor"><i class="fa-solid fa-expand"></i></button>
+            <button id="editorFindBtn" type="button" title="Find text"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </div>
+          <textarea id="source" spellcheck="false" aria-label="Write-up Markdown"></textarea>
+          <div class="source-foot">
+            <span id="lineCount">0 lines</span>
+            <span>Markdown-compatible</span>
+          </div>
+        </div>
+
+        <div class="preview-pane">
+          <div class="preview-head">
+            <span class="eyebrow">04 / LIVE PREVIEW</span>
+            <span>Rendered output</span>
+          </div>
+          <article id="preview" class="writeup article-preview"></article>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <div id="templateModal" class="template-modal" hidden role="dialog" aria-modal="true" aria-labelledby="templateModalTitle">
+    <div class="template-dialog">
+      <div class="template-dialog-head">
+        <div>
+          <span class="eyebrow">NEW WRITE-UP</span>
+          <h2 id="templateModalTitle">Choose a template</h2>
+          <p>Start with a professional structure, then customize every block.</p>
+        </div>
+        <button id="templateModalClose" class="icon-button" type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="template-grid">
+        <button class="template-card" data-new-template="ctf"><strong>CTF Write-up</strong><span>Recon → Exploit → Flag</span></button>
+        <button class="template-card" data-new-template="pentest"><strong>Pentest Report</strong><span>Executive Summary → Findings → Remediation</span></button>
+        <button class="template-card" data-new-template="finding"><strong>Vulnerability Finding</strong><span>Finding → Impact → Fix</span></button>
+        <button class="template-card" data-new-template="soc"><strong>SOC Investigation</strong><span>Timeline → IOC → Analysis</span></button>
+        <button class="template-card" data-new-template="blank"><strong>Blank</strong><span>Start from an empty document</span></button>
+      </div>
+    </div>
+  </div>
+  <div id="editorNotice" class="editor-notice" hidden role="dialog" aria-modal="true" aria-labelledby="editorNoticeTitle">
+    <div class="notice-card">
+      <div class="notice-icon"><i class="fa-solid fa-file-pen"></i></div>
+      <div class="notice-copy">
+        <strong id="editorNoticeTitle">Write-up is empty</strong>
+        <p>Please add some content to the editor before publishing.</p>
+      </div>
+      <button id="editorNoticeOk" class="notice-ok" type="button">OK</button>
+    </div>
+  </div>
+
+</main>
+
+
+<script src="js/editor.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

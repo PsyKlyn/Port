@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sardhon Kramsa — Cybersecurity student focused on penetration testing, web application security and hands-on security research.">
+  <title>Sardhon Kramsa | Cybersecurity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="interactive-grid" id="interactiveGrid" aria-hidden="true"></div>
+<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+
+<header class="navbar island-navbar">
+  <div class="nav-island" aria-label="Primary navigation">
+    <a href="#home" class="island-name" aria-label="Sardhon Kramsa home">SARDHON<span>.</span></a>
+    <nav class="island-icons" id="navLinks">
+      <a href="#about" title="About" aria-label="About"><i class="fa-solid fa-user"></i></a>
+      <a href="#projects" title="Projects" aria-label="Projects"><i class="fa-solid fa-folder-open"></i></a>
+      <a href="writeups.html" title="Write-ups" aria-label="Write-ups"><i class="fa-solid fa-file-code"></i></a>
+      <a href="editor.html" title="Write-up Editor" aria-label="Write-up Editor"><i class="fa-solid fa-pen-nib"></i></a>
+      <a href="#certifications" title="Certifications" aria-label="Certifications"><i class="fa-solid fa-certificate"></i></a>
+      <a href="#skills" title="Skills" aria-label="Skills"><i class="fa-solid fa-code"></i></a>
+      <a href="#contact" title="Contact" aria-label="Contact"><i class="fa-solid fa-envelope"></i></a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero section" id="home">
+  <div class="hero-content reveal">
+    <p class="eyebrow"><b class="pulse"></b> CYBERSECURITY · PENETRATION TESTING</p>
+    <h1>I build, break &amp;<br><span>understand systems.</span></h1>
+    <p class="hero-copy">BCA Cybersecurity student focused on practical penetration testing and web application security. I learn by building controlled labs, finding vulnerabilities, validating them and documenting the evidence.</p>
+    <div class="buttons"><a class="btn primary" href="#projects">Explore my work <b>↗</b></a><a class="btn" href="writeups.html">Read my write-ups</a></div>
+    <div class="stats"><div><strong>120+</strong><small>TryHackMe rooms</small></div><div><strong>Top 2%</strong><small>Ranking</small></div><div><strong>6</strong><small>Security findings</small></div></div>
+  </div>
+  <div class="terminal reveal delay">
+    <div class="terminal-bar"><span></span><span></span><span></span><em>~/sardhon/security.log</em></div>
+    <pre><span class="prompt">$</span> whoami
+sardhon@cybersec
+
+<span class="prompt">$</span> focus --current
+web-app-security
+
+<span class="prompt">$</span> assessment --status
+<span class="ok">[+] READY FOR CONTROLLED TESTING</span>
+
+<span class="prompt">$</span> workflow
+recon → enumerate → validate → document<span class="cursor"></span></pre>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <div class="section-title reveal"><p class="eyebrow">01 / PROFILE</p><h2>Security is more than knowing the tools.</h2></div>
+  <div class="about-grid">
+    <div class="about-copy reveal">
+      <p class="lead">I'm a <strong>BCA Cybersecurity student</strong> focused on penetration testing and practical security assessment.</p>
+      <p>My work centers on identifying and validating web-application vulnerabilities in controlled environments. I've built and assessed a deliberately vulnerable Flask/SQLite application, reproducing <strong>SQL injection, IDOR and authentication weaknesses</strong> while documenting evidence and remediation.</p>
+      <p>Alongside offensive security labs, I've built a lightweight SOC environment to explore event collection, detection, visualization and automated response.</p>
+    </div>
+    <aside class="info-card reveal delay"><label>CURRENTLY</label><h3>BCA — Cybersecurity</h3><p>Assam down town University · 2025–2028</p><hr><label>FOCUS</label><div class="chips"><span>Web Security</span><span>Pentesting</span><span>Recon</span><span>VAPT</span></div></aside>
+  </div>
+</section>
+
+<section class="section" id="projects">
+  <div class="section-title reveal"><p class="eyebrow">02 / SELECTED WORK</p><h2>Findings first. Tools second.</h2><p>Projects presented as practical security case studies.</p></div>
+
+  <article class="project reveal">
+    <div class="project-num">01</div>
+    <div>
+      <div class="project-head"><div><label>WEB APPLICATION SECURITY</label><h3>Vulnerable Web Application Security Lab</h3></div><a href="https://github.com/PsyKlyn/Mini-SOC-Dashboard" target="_blank">GitHub ↗</a></div>
+      <div class="case-grid">
+        <div><label>CONTEXT</label><p>Deliberately vulnerable Flask/SQLite application built for controlled security testing.</p></div>
+        <div><label>CHALLENGE</label><p>Identify and reproduce weaknesses across authentication, injection and access control.</p></div>
+        <div><label>APPROACH</label><p>Analysed HTTP requests and responses with Burp Suite and validated vulnerabilities with SQLMap and controlled authentication testing.</p></div>
+        <div><label>OUTCOME</label><p><strong>6 intentional findings across 3 OWASP Top 10 categories</strong>, with evidence, attack paths and remediation concepts documented.</p></div>
+      </div>
+      <div class="tech"><span>Flask</span><span>SQLite</span><span>Burp Suite</span><span>SQLMap</span><span>Hydra</span></div>
+    </div>
+  </article>
+
+  <article class="project reveal">
+    <div class="project-num">02</div>
+    <div>
+      <div class="project-head"><div><label>SECURITY MONITORING</label><h3>Mini-SOC Dashboard</h3></div><a href="https://github.com/PsyKlyn/Mini-SOC-Dashboard" target="_blank">GitHub ↗</a></div>
+      <div class="case-grid">
+        <div><label>BUILT</label><p>A lightweight SOC environment for security-event collection, detection, visualization and automated response.</p></div>
+        <div><label>DETECTION</label><p><strong>SQL injection, brute-force activity, IDOR attempts and port scans</strong>, with severity classification, alerting and incident logging.</p></div>
+        <div><label>RESPONSE</label><p>Correlated authentication and application activity into SQLite security logs and implemented automated IP blocking for suspicious activity.</p></div>
+        <div><label>WORKFLOW</label><p><strong>Collect → Detect → Analyze → Respond</strong></p></div>
+      </div>
+      <div class="tech"><span>Python</span><span>Flask</span><span>SQLite</span><span>JavaScript</span></div>
+    </div>
+  </article>
+
+  <article class="project reveal">
+    <div class="project-num">03</div>
+    <div>
+      <div class="project-head"><div><label>HANDS-ON LABS</label><h3>TryHackMe — Junior Penetration Testing Practice</h3></div><a href="https://tryhackme.com/p/Klyn13" target="_blank">Profile ↗</a></div>
+      <div class="achievements"><strong>120+</strong><small>rooms</small><strong>23</strong><small>badges</small><strong>Top 2%</strong><small>ranking</small></div>
+      <p class="muted">Completed hands-on security labs covering web security, Linux, networking, reconnaissance and exploitation. Practised enumeration, vulnerability assessment, attack-path documentation and controlled validation.</p>
+    </div>
+  </article>
+</section>
+
+<section class="section" id="writeups">
+  <div class="section-title reveal"><p class="eyebrow">03 / WRITE-UPS</p><h2>What I found. How I found it.</h2><p>CTF notes, vulnerability research, lab walkthroughs and security investigations.</p></div>
+  <div id="writeupGrid" class="writeup-grid home-writeup-grid"></div>
+  <div id="empty" class="empty" hidden>No write-ups are published yet.</div>
+  <div class="show-more-wrap"><a class="show-more-btn" href="writeups.html">Show More <i class="fa-solid fa-arrow-right"></i></a></div>
+</section>
+
+<section class="section" id="certifications">
+  <div class="section-title reveal"><p class="eyebrow">04 / CERTIFICATIONS</p><h2>Credentials that show the work.</h2><p>Hands-on learning milestones and security training currently in progress.</p></div>
+  <div class="cert-grid">
+    <article class="cert-card reveal">
+      <div class="cert-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <div class="cert-copy"><span class="cert-status">COMPLETED · TRYHACKME</span><h3>Pre Security</h3><p>TryHackMe certificate covering foundational security concepts, networking, Linux and introductory security practice.</p></div>
+      <a class="cert-link" href="https://tryhackme.com/" target="_blank" rel="noopener" aria-label="View TryHackMe certificate">↗</a>
+    </article>
+    <article class="cert-card reveal delay">
+      <div class="cert-icon"><i class="fa-solid fa-certificate"></i></div>
+      <div class="cert-copy"><span class="cert-status">COMPLETED · TRYHACKME</span><h3>Cyber Security 101</h3><p>TryHackMe certificate marking completion of the Cyber Security 101 learning path.</p></div>
+      <a class="cert-link" href="https://tryhackme.com/" target="_blank" rel="noopener" aria-label="View TryHackMe certificate">↗</a>
+    </article>
+    <article class="cert-card cert-current reveal">
+      <div class="cert-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div class="cert-copy"><span class="cert-status current">CURRENTLY ENROLLING</span><h3>Security Learning Path</h3><p>Continuing hands-on cybersecurity training and building toward deeper penetration-testing and security-assessment skills.</p></div>
+      <span class="cert-live"><i></i> IN PROGRESS</span>
+    </article>
+  </div>
+</section>
+
+<section class="section" id="skills">
+  <div class="section-title reveal"><p class="eyebrow">05 / TECHNICAL FOCUS</p><h2>What I work with.</h2></div>
+  <div class="skills">
+    <div class="skill reveal"><b>01</b><h3>Penetration Testing</h3><p>Web application security · OWASP Top 10 concepts · VAPT lifecycle · reconnaissance · enumeration · authentication testing · SQL injection concepts · HTTP analysis</p></div>
+    <div class="skill reveal"><b>02</b><h3>Security Tools</h3><p>Burp Suite · Nmap · SQLMap · Hydra · Wireshark · Kali Linux · VirtualBox</p></div>
+    <div class="skill reveal"><b>03</b><h3>Scripting &amp; Development</h3><p>Python · Bash · SQL · Flask · SQLite · HTML · CSS · JavaScript · Git/GitHub</p></div>
+    <div class="skill reveal"><b>04</b><h3>Systems &amp; Networking</h3><p>Linux · Windows · TCP/IP · DNS · HTTP/HTTPS · ports and protocols</p></div>
+  </div>
+</section>
+
+<section class="section contact" id="contact">
+  <div class="contact-card reveal"><p class="eyebrow">06 / CONTACT</p><h2>Let's talk security.</h2><p>Looking for an entry-level penetration-testing opportunity focused on practical security assessment and continued development.</p><div class="buttons"><a class="btn primary" href="mailto:psyklyn35@gmail.com">Email me ↗</a><a class="btn" href="https://github.com/PsyKlyn" target="_blank">GitHub ↗</a><a class="btn" href="https://www.linkedin.com/in/sardhon-kramsa-2a07b12a9" target="_blank">LinkedIn ↗</a></div></div>
+</section>
+</main>
+
+<footer><span>© <span id="year"></span> Sardhon Kramsa</span><span>Cybersecurity · Penetration Testing · Web Security</span></footer>
+<script src="js/writeups.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

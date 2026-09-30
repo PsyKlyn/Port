@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Sardhon Kramsa — security write-ups, CTF notes and vulnerability research.">
+<title>Write-ups | Sardhon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/writeups.css">
+</head>
+<body class="writeups-list-page reader-mode">
+<div class="interactive-grid" id="interactiveGrid" aria-hidden="true"></div>
+<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+<header class="navbar">
+  <a href="index.html" class="logo" aria-label="Sardhon Kramsa home"><span>SK</span> SARDHON<span>.</span></a>
+  <nav class="nav-links" id="navLinks" aria-label="Primary navigation">
+    <a href="index.html#about">About</a>
+    <a href="index.html#projects">Projects</a>
+    <a href="writeups.html" class="active">Write-ups</a>
+    <a href="editor.html">Editor</a>
+    <a href="index.html#certifications">Certifications</a>
+    <a href="index.html#skills">Skills</a>
+    <a href="index.html#contact">Contact</a>
+  </nav>
+  <div class="nav-actions"><a class="editor-nav-back" href="index.html"><i class="fa-solid fa-arrow-left"></i><span>Back</span></a></div>
+</header>
+<main class="writeups-page-shell">
+  <section id="writeupBrowser" class="writeups-browser" aria-label="Write-up browser">
+    <div id="readerStage" class="writeup-reader-stage reader-active">
+      <div id="writeupGrid" class="writeup-grid" aria-live="polite" hidden></div>
+
+      <aside id="readerSidebar" class="reader-sidebar" aria-label="Write-up list">
+        <div class="reader-controls">
+          <div class="reader-sidebar-head">
+            <span>WRITE-UPS</span>
+          </div>
+          <div class="reader-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input id="search" type="search" placeholder="Search write-ups..." aria-label="Search write-ups">
+          </div>
+          <div id="filters" class="filters" aria-label="Write-up tags"></div>
+          <div class="reader-list-divider" aria-hidden="true"></div>
+        </div>
+        <div class="reader-list-label">WRITE-UPS</div>
+        <div id="readerList" class="reader-list"></div>
+      </aside>
+
+      <article id="readerContent" class="reader-content">
+        <div id="readerBody" class="reader-body"></div>
+      </article>
+    </div>
+    <div id="empty" class="empty" hidden>No write-ups match your search.</div>
+  </section>
+</main>
+<footer><span>© <span id="year"></span> Sardhon Kramsa</span><span>Cybersecurity · Penetration Testing · Web Security</span></footer>
+<script src="js/writeups.js"></script>
+<script src="js/writeup-content.js"></script>
+<script src="js/writeups-page.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

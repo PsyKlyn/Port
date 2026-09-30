@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>IDOR in User Profile Endpoint | Sardhon</title><link rel="stylesheet" href="../Write-ups/writeup.css">
+</head>
+<body><main class="writeup">
+<div class="meta">TRYHACKME · 2026-09-29</div>
+<h1>IDOR in User Profile Endpoint</h1>
+<p class="intro">Documenting an object-level authorization issue discovered during an authorized security assessment.</p>
+<div class="code-card"><div class="block-top"><span>BASH</span></div><pre>nmap -sC -sV 10.49.16.111</pre></div>
+<div class="finding-card"><div class="severity">HIGH / FINDING</div><div class="finding-content"><h3>IDOR — Broken Access Control</h3><p>An authenticated user can access another user's object by changing an identifier.</p></div></div>
+<div class="attack-card"><div class="attack-step"><span>1</span><div>Reconnaissance</div></div><div class="attack-step"><span>2</span><div>Enumeration</div></div><div class="attack-step"><span>3</span><div>Initial Access</div></div><div class="attack-step"><span>4</span><div>Privilege Escalation</div></div><div class="attack-step"><span>5</span><div>Proof / Flag</div></div></div>
+<div class="mitre-card"><strong>MITRE ATT&amp;CK</strong><div class="mitre-tags"><span>T1059 — Command and Scripting Interpreter</span><span>T1071 — Application Layer Protocol</span></div></div>
+<div class="cvss-card"><div><div class="cvss-score">6.5</div><div class="cvss-label">CVSS SCORE</div></div><div class="cvss-label">AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N</div><div class="cvss-badge">MEDIUM</div></div>
+<h2>Remediation</h2><p>Perform authorization checks on every object request. Do not rely on an identifier supplied by the client to establish ownership or access rights.</p>
+</main></body></html>
