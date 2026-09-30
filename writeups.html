@@ -61,5 +61,39 @@
 <script src="js/writeup-content.js"></script>
 <script src="js/writeups-page.js"></script>
 <script src="js/script.js"></script>
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="delete-modal">
+  <div class="delete-modal-backdrop"></div>
+
+  <div class="delete-modal-card">
+    <div class="delete-modal-icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M6 7h12M9 7V5.5C9 4.67 9.67 4 10.5 4h3c.83 0 1.5.67 1.5 1.5V7M8 7l.7 12.1c.05.79.7 1.4 1.5 1.4h3.6c.8 0 1.45-.61 1.5-1.4L16 7M10 11v6M14 11v6"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="delete-modal-content">
+      <h3>Delete write-up?</h3>
+      <p>
+        Delete <strong id="deleteWriteupName">this write-up</strong>?
+      </p>
+      <span>This action permanently removes it from the live database.</span>
+    </div>
+
+    <div class="delete-modal-actions">
+      <button type="button" id="deleteCancelBtn" class="delete-btn cancel">
+        Cancel
+      </button>
+
+      <button type="button" id="deleteConfirmBtn" class="delete-btn confirm">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
