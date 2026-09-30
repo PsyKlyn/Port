@@ -99,7 +99,7 @@ def me(): return jsonify({'authenticated':bool(session.get('admin_id')),'usernam
 
 @app.get('/api/writeups')
 def list_writeups():
-    rows=query_all('SELECT slug,title,category,date,excerpt,tags FROM writeups WHERE published=TRUE ORDER BY date DESC, id DESC')
+    rows=query_all(('SELECT slug,title,category,date,excerpt,tags FROM writeups WHERE published=1 ORDER BY date DESC, id DESC' if not DATABASE_URL else 'SELECT slug,title,category,date,excerpt,tags FROM writeups WHERE published=TRUE ORDER BY date DESC, id DESC'))
     out=[]
     for r in rows:
         d=dict(r); d['tags']=json.loads(d['tags']) if isinstance(d['tags'],str) else (d['tags'] or []); d['url']=f"/writeups.html?slug={d['slug']}"; out.append(d)
@@ -107,7 +107,7 @@ def list_writeups():
 
 @app.get('/api/writeups/<slug>')
 def get_writeup(slug):
-    row=query_one('SELECT slug,title,category,date,excerpt,tags,markdown,content_html FROM writeups WHERE slug=? AND published=TRUE' if not DATABASE_URL else 'SELECT slug,title,category,date,excerpt,tags,markdown,content_html FROM writeups WHERE slug=%s AND published=TRUE',(slug,))
+    row=query_one(('SELECT slug,title,category,date,excerpt,tags,markdown,content_html FROM writeups WHERE slug=? AND published=1' if not DATABASE_URL else 'SELECT slug,title,category,date,excerpt,tags,markdown,content_html FROM writeups WHERE slug=%s AND published=TRUE'),(slug,))
     if not row: return jsonify({'error':'not_found'}),404
     d=dict(row); d['tags']=json.loads(d['tags']) if isinstance(d['tags'],str) else (d['tags'] or []); return jsonify(d)
 
