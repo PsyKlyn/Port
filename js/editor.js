@@ -1472,9 +1472,33 @@ async function publishLive(entry){
     body:JSON.stringify(entry)
   });
   const data=await response.json().catch(()=>({}));
-  if(response.status===401){ window.location.href='/admin/login'; throw new Error('Admin authentication required'); }
+  if(response.status===401){
+    const error=new Error('Admin authentication required');
+    error.code='UNAUTHORIZED';
+    throw error;
+  }
   if(!response.ok) throw new Error(data.error || 'Server rejected the write-up');
   return data;
+}
+
+async function checkAdminSession(){
+  try{
+    const response=await fetch('/api/auth/me',{credentials:'same-origin',cache:'no-store'});
+    if(!response.ok) return false;
+    const data=await response.json();
+    return data.authenticated===true;
+  }catch{ return false; }
+}
+
+function showUnauthorizedNotice(){
+  if(!notice) return;
+  const title=$("#editorNoticeTitle");
+  const copy=notice.querySelector(".notice-copy p");
+  const icon=notice.querySelector(".notice-icon i");
+  if(title) title.textContent='Unauthorized — publishing is restricted';
+  if(copy) copy.textContent='You can write and preview this write-up, but only the authenticated admin can publish it.';
+  if(icon) icon.className='fa-solid fa-lock';
+  showEditorNotice();
 }
 
 async function publishWriteup(){
@@ -1482,6 +1506,15 @@ async function publishWriteup(){
   if(btn?.disabled) return;
   if(!validatePublish()) return;
   if(!source.value.trim()){ toggleCalendar(false); showEditorNotice(); return; }
+
+  // The editor is intentionally public. Check the session before starting the
+  // publishing request so visitors get a friendly in-page notification rather
+  // than a redirect to the login screen. The API still enforces authorization.
+  if(!(await checkAdminSession())){
+    showUnauthorizedNotice();
+    return;
+  }
+
   setPublishing(btn);
   const entry=getPublishEntry();
   try{
@@ -1496,7 +1529,11 @@ async function publishWriteup(){
   }catch(err){
     console.error(err);
     resetPublishing(btn);
-    flash(`Publish failed: ${err?.message || "could not publish the write-up"}`);
+    if(err?.code==='UNAUTHORIZED'){
+      showUnauthorizedNotice();
+    }else{
+      flash(`Publish failed: ${err?.message || "could not publish the write-up"}`);
+    }
   }
 }
 
