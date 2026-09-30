@@ -341,6 +341,23 @@ async function loadAdminState(){
   }catch{ IS_ADMIN=false; CSRF_TOKEN=''; }
 }
 
+function showToast(message, type = "success") {
+  let toast = document.getElementById("writeupToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "writeupToast";
+    toast.className = "writeup-toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    document.body.appendChild(toast);
+  }
+  toast.className = `writeup-toast ${type}`;
+  toast.innerHTML = `<i class="fa-solid ${type === "success" ? "fa-circle-check" : "fa-circle-exclamation"}" aria-hidden="true"></i><span>${escapeHtml(message)}</span>`;
+  requestAnimationFrame(() => toast.classList.add("show"));
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove("show"), 3200);
+}
+
 function renderDeleteButton(item){
   const existing=document.getElementById('readerDeleteBtn');
   existing?.remove();
@@ -392,6 +409,7 @@ async function deleteSelectedWriteup(item,btn){
       localStorage.setItem(PUBLISHED_KEY,JSON.stringify(local));
     }catch{}
     renderDeleteButton(null);
+    showToast(`“${title}” deleted successfully.`);
     renderFilters();
     renderGrid();
     renderReaderList();
@@ -401,7 +419,7 @@ async function deleteSelectedWriteup(item,btn){
   }catch(err){
     console.error(err);
     btn.disabled=false;
-    window.alert(err?.message || 'Could not delete the write-up.');
+    showToast(err?.message || 'Could not delete the write-up.', 'error');
   }
 }
 
