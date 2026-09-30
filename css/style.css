@@ -375,12 +375,12 @@ html::-webkit-scrollbar-thumb:hover{
     opacity:1;
   }
 
-  55%{
+  75%{
     transform:translateX(75%) skewX(-12deg);
     opacity:.85;
   }
 
-  57%{
+  75.5%{
     opacity:0;
   }
 
