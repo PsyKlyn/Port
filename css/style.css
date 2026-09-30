@@ -375,12 +375,12 @@ html::-webkit-scrollbar-thumb:hover{
     opacity:1;
   }
 
-  75%{
+  80.5%{
     transform:translateX(75%) skewX(-12deg);
     opacity:.85;
   }
 
-  75.5%{
+  81.25%{
     opacity:0;
   }
 
@@ -389,7 +389,6 @@ html::-webkit-scrollbar-thumb:hover{
     opacity:0;
   }
 }
-
 /* Real certificate artwork replaces icon-only presentation for completed paths. */
 .cert-card{
   grid-template-columns:auto 1fr auto;
