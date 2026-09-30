@@ -9,6 +9,9 @@ const readerContent = document.getElementById("readerContent");
 const readerBody = document.getElementById("readerBody");
 const PUBLISHED_KEY = "sardhon-published-writeups-v1";
 let LIVE_ITEMS = [];
+let LIVE_LOADED = false;
+let IS_ADMIN = false;
+let CSRF_TOKEN = "";
 
 function slugify(value) {
   return String(value || "").toLowerCase().trim()
@@ -17,16 +20,15 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 function normalizeTags(tags) {
-  const raw = Array.isArray(tags)
-    ? tags
-    : String(tags || "").split(",");
+  const raw = Array.isArray(tags) ? tags : String(tags || "").split(",");
   const seen = new Set();
   const result = [];
   for (const value of raw) {
-    const tag = String(value || "").trim().toLowerCase();
-    if (!tag || seen.has(tag)) continue;
-    seen.add(tag);
-    result.push(tag);
+    const display = String(value || "").trim();
+    const key = display.toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push(display);
   }
   return result;
 }
@@ -40,12 +42,20 @@ function publishedItems() {
   } catch { return []; }
 }
 function allItems() {
+  // Once the production API responds, PostgreSQL is the source of truth.
+  // This prevents stale localStorage entries from changing tags or resurrecting
+  // a write-up that was deleted from the live database.
+  if (LIVE_LOADED) {
+    return LIVE_ITEMS.map(item => {
+      const slug = item.slug || slugify(item.title);
+      return { ...item, slug, tags: normalizeTags(item.tags), live: true,
+        url: item.url || `/writeups.html?slug=${encodeURIComponent(slug)}` };
+    });
+  }
+
+  // file:// / offline fallback for the static portfolio.
   const staticItems = WRITEUPS.map(w => ({...w, slug:w.slug || w.id || slugify(w.title), tags:normalizeTags(w.tags)}));
   const bySlug = new Map(staticItems.map(w => [w.slug, w]));
-  for (const item of LIVE_ITEMS) {
-    const slug=item.slug || slugify(item.title);
-    bySlug.set(slug,{...(bySlug.get(slug)||{}),...item,slug,tags:normalizeTags(item.tags),url:item.url || `/writeups.html?slug=${encodeURIComponent(slug)}`});
-  }
   for (const item of publishedItems()) {
     const slug=item.slug || slugify(item.title);
     const base=bySlug.get(slug);
@@ -59,11 +69,11 @@ function filteredItems() {
   return allItems().filter(w => {
     const tags = normalizeTags(w.tags);
     const text = `${w.title || ""} ${w.category || ""} ${w.excerpt || ""} ${tags.join(" ")}`.toLowerCase();
-    return (!q || text.includes(q)) && (!active || tags.includes(active));
+    return (!q || text.includes(q)) && (!active || tags.some(tag => tag.toLowerCase() === active));
   });
 }
 function renderFilters() {
-  const tags = [...new Set(allItems().flatMap(w => normalizeTags(w.tags)))].sort((a,b)=>a.localeCompare(b));
+  const tags = [...new Map(allItems().flatMap(w => normalizeTags(w.tags)).map(t => [t.toLowerCase(), t])).values()].sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:"base"}));
   filters.innerHTML = `<button class="filter active" data-tag="">All</button>` + tags.map(t => `<button class="filter" data-tag="${escapeHtml(t.toLowerCase())}">${escapeHtml(t)}</button>`).join("");
   filters.querySelectorAll(".filter").forEach(btn => btn.addEventListener("click", () => {
     filters.querySelectorAll(".filter").forEach(x => x.classList.remove("active"));
@@ -77,6 +87,7 @@ function cardHtml(item) {
     <span class="category">${escapeHtml(item.category || "SECURITY")}</span>
     <h3>${escapeHtml(item.title || "Untitled Security Write-up")}</h3>
     ${item.excerpt ? `<p>${escapeHtml(item.excerpt)}</p>` : ""}
+    ${normalizeTags(item.tags).length ? `<span class="card-tags">${normalizeTags(item.tags).map(t=>`<em>${escapeHtml(t)}</em>`).join("")}</span>` : ""}
     <time>${escapeHtml(item.date || "")}</time>
     <span class="card-open"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
   </button>`;
@@ -92,6 +103,7 @@ function renderReaderList() {
   readerList.innerHTML = list.length ? list.map(item => `<button class="reader-item" type="button" data-slug="${escapeHtml(item.slug)}">
     <span class="side-category">${escapeHtml(item.category || "TRYHACKME")}</span>
     <span class="side-title">${escapeHtml(item.title || "Untitled Security Write-up")}</span>
+    ${normalizeTags(item.tags).length ? `<span class="side-tags">${normalizeTags(item.tags).map(t=>`<em>${escapeHtml(t)}</em>`).join("")}</span>` : ""}
   </button>`).join("") : `<div class="detail-empty-list">No write-ups match your search.</div>`;
   readerList.querySelectorAll(".reader-item").forEach(btn => btn.addEventListener("click", () => selectItem(btn.dataset.slug)));
 }
@@ -316,6 +328,83 @@ function markdownFallbackDocument(markdown, item) {
   return `<!doctype html><html><body><main><div class="meta">${escapeHtml(item.category || "SECURITY")} · ${escapeHtml(item.date || "")}</div><h1>${escapeHtml(item.title || "Untitled Security Write-up")}</h1>${item.excerpt ? `<p class="intro">${escapeHtml(item.excerpt)}</p>` : ""}<div class="article-content">${out.join("")}</div></main></body></html>`;
 }
 
+async function loadAdminState(){
+  try{
+    const me=await fetch('/api/auth/me',{credentials:'same-origin',cache:'no-store'});
+    if(!me.ok) return;
+    const data=await me.json();
+    IS_ADMIN=!!data.authenticated;
+    if(IS_ADMIN){
+      const csrfResponse=await fetch('/api/auth/csrf',{credentials:'same-origin',cache:'no-store'});
+      if(csrfResponse.ok){ const csrfData=await csrfResponse.json(); CSRF_TOKEN=csrfData.csrf || ''; }
+    }
+  }catch{ IS_ADMIN=false; CSRF_TOKEN=''; }
+}
+
+function renderDeleteButton(item){
+  const existing=document.getElementById('readerDeleteBtn');
+  existing?.remove();
+  if(!IS_ADMIN || !item?.live) return;
+  const btn=document.createElement('button');
+  btn.id='readerDeleteBtn';
+  btn.className='reader-delete-btn';
+  btn.type='button';
+  btn.title=`Delete ${item.title || 'write-up'}`;
+  btn.setAttribute('aria-label',`Delete ${item.title || 'write-up'}`);
+  btn.innerHTML='<i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Delete</span>';
+  btn.addEventListener('click',()=>deleteSelectedWriteup(item,btn));
+  readerContent.appendChild(btn);
+}
+
+async function deleteSelectedWriteup(item,btn){
+  if(!IS_ADMIN || !item?.live) return;
+  const title=item.title || item.slug || 'this write-up';
+  if(!window.confirm(`Delete “${title}”?\n\nThis removes the published write-up from the live database.`)) return;
+  btn.disabled=true;
+  try{
+    if(!CSRF_TOKEN){
+      const csrfResponse=await fetch('/api/auth/csrf',{credentials:'same-origin',cache:'no-store'});
+      if(!csrfResponse.ok) throw new Error('Could not obtain CSRF token');
+      CSRF_TOKEN=(await csrfResponse.json()).csrf || '';
+    }
+    let response=await fetch(`/api/writeups/${encodeURIComponent(item.slug)}`,{
+      method:'DELETE',credentials:'same-origin',headers:{'X-CSRF-Token':CSRF_TOKEN},cache:'no-store'
+    });
+    if(response.status===403){
+      const csrfResponse=await fetch('/api/auth/csrf',{credentials:'same-origin',cache:'no-store'});
+      if(csrfResponse.ok){
+        CSRF_TOKEN=(await csrfResponse.json()).csrf || '';
+        response=await fetch(`/api/writeups/${encodeURIComponent(item.slug)}`,{
+          method:'DELETE',credentials:'same-origin',headers:{'X-CSRF-Token':CSRF_TOKEN},cache:'no-store'
+        });
+      }
+    }
+    const data=await response.json().catch(()=>({}));
+    if(response.status===401){
+      IS_ADMIN=false; renderDeleteButton(item);
+      throw new Error('Your admin session has expired.');
+    }
+    if(!response.ok) throw new Error(data.error || `Delete failed (${response.status})`);
+
+    LIVE_ITEMS=LIVE_ITEMS.filter(w => (w.slug || slugify(w.title)) !== item.slug);
+    try{
+      const local=publishedItems().filter(w => (w.slug || slugify(w.title)) !== item.slug);
+      localStorage.setItem(PUBLISHED_KEY,JSON.stringify(local));
+    }catch{}
+    renderDeleteButton(null);
+    renderFilters();
+    renderGrid();
+    renderReaderList();
+    const next=allItems()[0];
+    if(next) await selectItem(next.slug,true);
+    else closeReader();
+  }catch(err){
+    console.error(err);
+    btn.disabled=false;
+    window.alert(err?.message || 'Could not delete the write-up.');
+  }
+}
+
 async function showReader(item) {
   readerBody.innerHTML = `<div class="reader-loading"><i class="fa-solid fa-spinner fa-spin"></i><span>Loading write-up...</span></div>`;
   const doc = addPublishedStyles(await getContent(item));
@@ -354,6 +443,7 @@ async function showReader(item) {
   article.innerHTML = sourceRoot.innerHTML;
   readerBody.appendChild(article);
   bindCopyButtons(article);
+  renderDeleteButton(item);
   document.title = `${item.title || "Write-up"} | Sardhon`;
 }
 function setUrl(slug) {
@@ -399,9 +489,10 @@ window.addEventListener("popstate", () => {
 });
 
 async function loadLiveWriteups(){
+  await loadAdminState();
   try{
     const response=await fetch('/api/writeups',{credentials:'same-origin',cache:'no-store'});
-    if(response.ok){ LIVE_ITEMS=await response.json(); }
+    if(response.ok){ LIVE_ITEMS=await response.json(); LIVE_LOADED=true; }
   }catch{}
   renderFilters();
   renderGrid();
