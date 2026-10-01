@@ -2088,7 +2088,7 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 /* =========================================================
-   DELETE MODAL
+   DELETE MODAL — PURPLE / LAVENDER PORTFOLIO THEME
    ========================================================= */
 
 .delete-modal {
@@ -2116,7 +2116,9 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 
-/* BACKDROP */
+/* =========================================================
+   BACKDROP
+   ========================================================= */
 
 .delete-modal-backdrop {
   position: absolute;
@@ -2124,18 +2126,20 @@ html::-webkit-scrollbar-thumb:hover {
 
   background:
     radial-gradient(
-      circle at 50% 40%,
-      rgba(42, 75, 120, .12),
-      transparent 45%
+      circle at 50% 35%,
+      rgba(139, 92, 246, .18),
+      transparent 48%
     ),
-    rgba(2, 7, 18, .78);
+    rgba(5, 3, 15, .82);
 
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 
-/* CARD */
+/* =========================================================
+   MODAL CARD
+   ========================================================= */
 
 .delete-modal-card {
   position: relative;
@@ -2145,25 +2149,26 @@ html::-webkit-scrollbar-thumb:hover {
 
   padding: 30px;
 
-  border-radius: 22px;
+  border-radius: 24px;
 
   background:
     linear-gradient(
       145deg,
-      rgba(21, 31, 49, .96),
-      rgba(9, 16, 30, .96)
+      rgba(30, 20, 55, .96),
+      rgba(13, 9, 27, .98)
     );
 
-  border: 1px solid rgba(148, 163, 184, .16);
+  border: 1px solid rgba(196, 181, 253, .18);
 
   box-shadow:
-    0 30px 90px rgba(0, 0, 0, .55),
-    inset 0 1px 0 rgba(255, 255, 255, .05);
+    0 30px 90px rgba(0, 0, 0, .65),
+    0 0 70px rgba(139, 92, 246, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
 
   transform: translateY(14px) scale(.97);
 
   transition:
-    transform .28s cubic-bezier(.2,.8,.2,1);
+    transform .3s cubic-bezier(.2,.8,.2,1);
 }
 
 .delete-modal.active .delete-modal-card {
@@ -2171,7 +2176,9 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 
-/* SUBTLE TOP GLOW */
+/* =========================================================
+   LAVENDER TOP LIGHT
+   ========================================================= */
 
 .delete-modal-card::before {
   content: "";
@@ -2179,8 +2186,8 @@ html::-webkit-scrollbar-thumb:hover {
   position: absolute;
 
   top: 0;
-  left: 10%;
-  right: 10%;
+  left: 12%;
+  right: 12%;
 
   height: 1px;
 
@@ -2188,19 +2195,23 @@ html::-webkit-scrollbar-thumb:hover {
     linear-gradient(
       90deg,
       transparent,
-      rgba(96, 165, 250, .5),
+      #c4b5fd,
+      #a78bfa,
       transparent
     );
 
-  opacity: .8;
+  box-shadow:
+    0 0 14px rgba(167, 139, 250, .55);
 }
 
 
-/* ICON */
+/* =========================================================
+   ICON
+   ========================================================= */
 
 .delete-modal-icon {
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
 
   display: flex;
   align-items: center;
@@ -2208,35 +2219,43 @@ html::-webkit-scrollbar-thumb:hover {
 
   margin-bottom: 22px;
 
-  border-radius: 16px;
+  border-radius: 17px;
+
+  color: #c4b5fd;
 
   background:
     linear-gradient(
       145deg,
-      rgba(239, 68, 68, .14),
-      rgba(239, 68, 68, .05)
+      rgba(139, 92, 246, .24),
+      rgba(167, 139, 250, .08)
     );
 
-  border: 1px solid rgba(248, 113, 113, .2);
-
-  color: #fb7185;
+  border: 1px solid rgba(196, 181, 253, .25);
 
   box-shadow:
-    0 10px 30px rgba(239, 68, 68, .08);
+    0 0 30px rgba(139, 92, 246, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .07);
 }
 
 .delete-modal-icon svg {
-  width: 24px;
-  height: 24px;
+  width: 25px;
+  height: 25px;
+
+  filter:
+    drop-shadow(
+      0 0 9px rgba(196, 181, 253, .45)
+    );
 }
 
 
-/* CONTENT */
+/* =========================================================
+   TEXT
+   ========================================================= */
 
 .delete-modal-content h3 {
   margin: 0 0 10px;
 
-  color: #f8fafc;
+  color: #f5f3ff;
 
   font-size: 23px;
   font-weight: 700;
@@ -2247,28 +2266,31 @@ html::-webkit-scrollbar-thumb:hover {
 .delete-modal-content p {
   margin: 0 0 7px;
 
-  color: #cbd5e1;
+  color: #c4b5fd;
 
   font-size: 15px;
   line-height: 1.6;
 }
 
 .delete-modal-content p strong {
-  color: #f1f5f9;
+  color: #ede9fe;
+
   font-weight: 600;
 }
 
 .delete-modal-content > span {
   display: block;
 
-  color: #64748b;
+  color: #8b82a8;
 
   font-size: 13px;
   line-height: 1.5;
 }
 
 
-/* ACTIONS */
+/* =========================================================
+   BUTTON CONTAINER
+   ========================================================= */
 
 .delete-modal-actions {
   display: flex;
@@ -2281,7 +2303,9 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 
-/* BUTTON BASE */
+/* =========================================================
+   BUTTON BASE
+   ========================================================= */
 
 .delete-btn {
   height: 44px;
@@ -2316,62 +2340,84 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 
-/* CANCEL */
+/* =========================================================
+   CANCEL — PURPLE GLASS
+   ========================================================= */
 
 .delete-btn.cancel {
-  color: #cbd5e1;
+  color: #ddd6fe;
 
-  background: rgba(30, 41, 59, .7);
+  background:
+    rgba(91, 67, 128, .22);
 
-  border-color: rgba(148, 163, 184, .15);
+  border-color:
+    rgba(196, 181, 253, .18);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .04);
 }
 
 .delete-btn.cancel:hover {
-  background: rgba(51, 65, 85, .8);
+  color: #f5f3ff;
 
-  border-color: rgba(148, 163, 184, .25);
+  background:
+    rgba(124, 92, 170, .30);
+
+  border-color:
+    rgba(196, 181, 253, .32);
+
+  box-shadow:
+    0 0 20px rgba(139, 92, 246, .10);
 }
 
 
-/* DELETE */
+/* =========================================================
+   DELETE — LAVENDER / VIOLET
+   ========================================================= */
 
 .delete-btn.confirm {
-  color: #fff;
+  color: #ffffff;
 
   background:
     linear-gradient(
       135deg,
-      #ef4444,
-      #dc2626
+      #8b5cf6,
+      #7c3aed
     );
 
-  border-color: rgba(248, 113, 113, .35);
+  border-color:
+    rgba(196, 181, 253, .30);
 
   box-shadow:
-    0 8px 24px rgba(220, 38, 38, .2);
+    0 8px 26px rgba(124, 58, 237, .28),
+    inset 0 1px 0 rgba(255, 255, 255, .18);
 }
 
 .delete-btn.confirm:hover {
   background:
     linear-gradient(
       135deg,
-      #f05252,
-      #e11d2e
+      #a78bfa,
+      #8b5cf6
     );
 
   box-shadow:
-    0 10px 30px rgba(220, 38, 38, .3);
+    0 10px 32px rgba(139, 92, 246, .38),
+    0 0 20px rgba(167, 139, 250, .15);
 }
 
 .delete-btn.confirm:disabled {
   cursor: wait;
-  opacity: .65;
+
+  opacity: .6;
 
   transform: none;
 }
 
 
-/* MOBILE */
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 600px) {
 
@@ -2382,7 +2428,7 @@ html::-webkit-scrollbar-thumb:hover {
   .delete-modal-card {
     padding: 24px;
 
-    border-radius: 19px;
+    border-radius: 20px;
   }
 
   .delete-modal-content h3 {
@@ -2396,5 +2442,4 @@ html::-webkit-scrollbar-thumb:hover {
   .delete-btn {
     width: 100%;
   }
-
 }
