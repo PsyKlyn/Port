@@ -1,4 +1,4 @@
-const grid = document.getElementById("writeupGrid");
+const writeupGrid = document.getElementById("writeupGrid");
 const search = document.getElementById("search");
 const filters = document.getElementById("filters");
 const empty = document.getElementById("empty");
@@ -94,9 +94,9 @@ function cardHtml(item) {
 }
 function renderGrid() {
   const list = filteredItems();
-  grid.innerHTML = list.map(cardHtml).join("");
+  writeupGrid.innerHTML = list.map(cardHtml).join("");
   empty.hidden = list.length !== 0;
-  grid.querySelectorAll(".writeup-card").forEach(card => card.addEventListener("click", () => selectItem(card.dataset.slug)));
+  writeupGrid.querySelectorAll(".writeup-card").forEach(card => card.addEventListener("click", () => selectItem(card.dataset.slug)));
 }
 function renderReaderList() {
   const list = filteredItems();
@@ -361,7 +361,9 @@ function showToast(message, type = "success") {
 function renderDeleteButton(item){
   const existing=document.getElementById('readerDeleteBtn');
   existing?.remove();
+
   if(!IS_ADMIN || !item?.live) return;
+
   const btn=document.createElement('button');
   btn.id='readerDeleteBtn';
   btn.className='reader-delete-btn';
@@ -371,6 +373,14 @@ function renderDeleteButton(item){
   btn.innerHTML='<i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Delete</span>';
   btn.addEventListener('click',()=>deleteSelectedWriteup(item,btn));
   readerContent.appendChild(btn);
+}
+
+function deleteSelectedWriteup(item, btn) {
+  if (!IS_ADMIN || !item?.live) return;
+
+  const title = item.title || item.slug || "this write-up";
+
+  openDeleteModal(title, item.slug);
 }
 
 async function showReader(item) {
@@ -431,7 +441,7 @@ async function selectItem(slug, fromUrl=false) {
   stage.classList.add("reader-active");
   sidebar.hidden = false;
   readerContent.hidden = false;
-  grid.setAttribute("aria-hidden", "true");
+  writeupGrid.setAttribute("aria-hidden", "true");
 
   renderReaderList();
   await showReader(item);
@@ -445,7 +455,7 @@ function closeReader() {
   stage.classList.remove("reader-active", "rearranging");
   sidebar.hidden = true;
   readerContent.hidden = true;
-  grid.removeAttribute("aria-hidden");
+  writeupGrid.removeAttribute("aria-hidden");
   setUrl("");
   document.title = "Write-ups | Sardhon";
   window.scrollTo({top:0, behavior:"smooth"});
@@ -497,7 +507,7 @@ function closeDeleteModal() {
   modal.classList.remove("active");
   document.body.style.overflow = "";
 
-  pendingDeleteSlug = null;
+  pendingDelete = null;
 }
 
 document.getElementById("deleteCancelBtn")?.addEventListener("click", () => {
