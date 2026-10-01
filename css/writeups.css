@@ -2087,9 +2087,9 @@ html::-webkit-scrollbar-thumb:hover {
   }
 }
 
-/* ================================
-   DELETE CONFIRMATION MODAL
-================================ */
+/* =========================================================
+   DELETE MODAL
+   ========================================================= */
 
 .delete-modal {
   position: fixed;
@@ -2100,136 +2100,201 @@ html::-webkit-scrollbar-thumb:hover {
   align-items: center;
   justify-content: center;
 
+  padding: 24px;
+
   opacity: 0;
   visibility: hidden;
-  pointer-events: none;
 
   transition:
-    opacity .22s ease,
-    visibility .22s ease;
+    opacity .25s ease,
+    visibility .25s ease;
 }
 
 .delete-modal.active {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto;
 }
+
+
+/* BACKDROP */
 
 .delete-modal-backdrop {
   position: absolute;
   inset: 0;
 
-  background: rgba(4, 7, 14, .72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(42, 75, 120, .12),
+      transparent 45%
+    ),
+    rgba(2, 7, 18, .78);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
+
+
+/* CARD */
 
 .delete-modal-card {
   position: relative;
-  width: min(430px, calc(100vw - 32px));
+  z-index: 2;
 
-  padding: 28px;
+  width: min(520px, 100%);
+
+  padding: 30px;
+
+  border-radius: 22px;
 
   background:
     linear-gradient(
       145deg,
-      rgba(25, 29, 40, .97),
-      rgba(13, 16, 25, .98)
+      rgba(21, 31, 49, .96),
+      rgba(9, 16, 30, .96)
     );
 
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, .16);
 
   box-shadow:
-    0 30px 80px rgba(0,0,0,.55),
-    inset 0 1px 0 rgba(255,255,255,.05);
+    0 30px 90px rgba(0, 0, 0, .55),
+    inset 0 1px 0 rgba(255, 255, 255, .05);
 
-  transform: translateY(12px) scale(.97);
-  transition: transform .25s cubic-bezier(.22,1,.36,1);
+  transform: translateY(14px) scale(.97);
+
+  transition:
+    transform .28s cubic-bezier(.2,.8,.2,1);
 }
 
 .delete-modal.active .delete-modal-card {
   transform: translateY(0) scale(1);
 }
 
-/* Icon */
+
+/* SUBTLE TOP GLOW */
+
+.delete-modal-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 10%;
+  right: 10%;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(96, 165, 250, .5),
+      transparent
+    );
+
+  opacity: .8;
+}
+
+
+/* ICON */
 
 .delete-modal-icon {
-  width: 46px;
-  height: 46px;
+  width: 54px;
+  height: 54px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 
-  color: #ff6b6b;
+  border-radius: 16px;
 
-  background: rgba(255, 75, 75, .10);
-  border: 1px solid rgba(255, 95, 95, .18);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(239, 68, 68, .14),
+      rgba(239, 68, 68, .05)
+    );
 
-  border-radius: 13px;
+  border: 1px solid rgba(248, 113, 113, .2);
+
+  color: #fb7185;
+
+  box-shadow:
+    0 10px 30px rgba(239, 68, 68, .08);
 }
 
 .delete-modal-icon svg {
-  width: 23px;
-  height: 23px;
+  width: 24px;
+  height: 24px;
 }
 
-/* Text */
+
+/* CONTENT */
 
 .delete-modal-content h3 {
-  margin: 0 0 9px;
+  margin: 0 0 10px;
 
-  color: #f5f7fb;
+  color: #f8fafc;
 
-  font-size: 20px;
-  font-weight: 650;
-  letter-spacing: -.02em;
+  font-size: 23px;
+  font-weight: 700;
+
+  letter-spacing: -.025em;
 }
 
 .delete-modal-content p {
-  margin: 0 0 6px;
+  margin: 0 0 7px;
 
-  color: #d7dbe5;
+  color: #cbd5e1;
 
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .delete-modal-content p strong {
-  color: #ffffff;
+  color: #f1f5f9;
   font-weight: 600;
 }
 
-.delete-modal-content span {
+.delete-modal-content > span {
   display: block;
 
-  color: #858c9c;
+  color: #64748b;
 
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
-/* Buttons */
+
+/* ACTIONS */
 
 .delete-modal-actions {
   display: flex;
+
   justify-content: flex-end;
+
   gap: 10px;
 
-  margin-top: 25px;
+  margin-top: 28px;
 }
 
-.delete-btn {
-  height: 40px;
-  padding: 0 18px;
 
-  border-radius: 10px;
+/* BUTTON BASE */
+
+.delete-btn {
+  height: 44px;
+
+  padding: 0 20px;
+
+  border-radius: 12px;
+
+  border: 1px solid transparent;
 
   font-family: inherit;
-  font-size: 13px;
+
+  font-size: 14px;
   font-weight: 600;
 
   cursor: pointer;
@@ -2237,7 +2302,9 @@ html::-webkit-scrollbar-thumb:hover {
   transition:
     transform .18s ease,
     background .18s ease,
-    border-color .18s ease;
+    border-color .18s ease,
+    box-shadow .18s ease,
+    opacity .18s ease;
 }
 
 .delete-btn:hover {
@@ -2248,38 +2315,78 @@ html::-webkit-scrollbar-thumb:hover {
   transform: translateY(0);
 }
 
-.delete-btn.cancel {
-  color: #c7ccd7;
 
-  background: rgba(255,255,255,.055);
-  border: 1px solid rgba(255,255,255,.10);
+/* CANCEL */
+
+.delete-btn.cancel {
+  color: #cbd5e1;
+
+  background: rgba(30, 41, 59, .7);
+
+  border-color: rgba(148, 163, 184, .15);
 }
 
 .delete-btn.cancel:hover {
-  background: rgba(255,255,255,.09);
-  border-color: rgba(255,255,255,.16);
+  background: rgba(51, 65, 85, .8);
+
+  border-color: rgba(148, 163, 184, .25);
 }
+
+
+/* DELETE */
 
 .delete-btn.confirm {
   color: #fff;
 
-  background: rgba(220, 55, 65, .88);
-  border: 1px solid rgba(255,110,110,.20);
+  background:
+    linear-gradient(
+      135deg,
+      #ef4444,
+      #dc2626
+    );
 
-  box-shadow: 0 5px 18px rgba(220,55,65,.18);
+  border-color: rgba(248, 113, 113, .35);
+
+  box-shadow:
+    0 8px 24px rgba(220, 38, 38, .2);
 }
 
 .delete-btn.confirm:hover {
-  background: rgba(235, 65, 75, .95);
-  box-shadow: 0 7px 22px rgba(220,55,65,.25);
+  background:
+    linear-gradient(
+      135deg,
+      #f05252,
+      #e11d2e
+    );
+
+  box-shadow:
+    0 10px 30px rgba(220, 38, 38, .3);
 }
 
-/* Mobile */
+.delete-btn.confirm:disabled {
+  cursor: wait;
+  opacity: .65;
 
-@media (max-width: 520px) {
+  transform: none;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+  .delete-modal {
+    padding: 16px;
+  }
+
   .delete-modal-card {
-    padding: 23px;
-    border-radius: 17px;
+    padding: 24px;
+
+    border-radius: 19px;
+  }
+
+  .delete-modal-content h3 {
+    font-size: 21px;
   }
 
   .delete-modal-actions {
@@ -2289,4 +2396,5 @@ html::-webkit-scrollbar-thumb:hover {
   .delete-btn {
     width: 100%;
   }
+
 }
