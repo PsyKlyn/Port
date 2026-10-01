@@ -485,18 +485,24 @@ let pendingDelete = null;
 function openDeleteModal(title, slug) {
   const modal = document.getElementById("deleteModal");
   const name = document.getElementById("deleteWriteupName");
+  const confirmBtn = document.getElementById("deleteConfirmBtn");
 
-  if (!modal) return;
+  if (!modal || !name) return;
 
   pendingDelete = {
     slug,
     title: title || "this write-up"
   };
 
-  name.textContent = `"${title}"`;
+  name.textContent = `"${title || "this write-up"}"`;
+
+  if (confirmBtn) {
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = "Delete";
+  }
 
   modal.classList.add("active");
-  document.body.style.overflow = "hidden";
+  document.body.classList.add("delete-modal-open");
 }
 
 function closeDeleteModal() {
@@ -505,103 +511,151 @@ function closeDeleteModal() {
   if (!modal) return;
 
   modal.classList.remove("active");
-  document.body.style.overflow = "";
+  document.body.classList.remove("delete-modal-open");
 
   pendingDelete = null;
 }
 
-document.getElementById("deleteCancelBtn")?.addEventListener("click", () => {
-  closeDeleteModal();
-});
+function deleteSelectedWriteup(item, btn) {
+  if (!IS_ADMIN || !item?.live) return;
 
-document.querySelector(".delete-modal-backdrop")?.addEventListener("click", () => {
-  closeDeleteModal();
-});
+  const title = item.title || item.slug || "this write-up";
 
-document.getElementById("deleteConfirmBtn")?.addEventListener("click", async () => {
+  openDeleteModal(title, item.slug);
+}
+
+
+/* =========================================================
+   DELETE MODAL EVENTS
+   ========================================================= */
+
+document.addEventListener("click", async (event) => {
+
+  /* CANCEL */
+  if (event.target.closest("#deleteCancelBtn")) {
+    closeDeleteModal();
+    return;
+  }
+
+  /* BACKDROP */
+  if (event.target.classList.contains("delete-modal-backdrop")) {
+    closeDeleteModal();
+    return;
+  }
+
+  /* CONFIRM DELETE */
+  const confirmButton = event.target.closest("#deleteConfirmBtn");
+
+  if (!confirmButton) return;
 
   if (!pendingDelete) return;
 
   const { slug, title } = pendingDelete;
-  const button = document.getElementById("deleteConfirmBtn");
 
-  button.disabled = true;
-  button.textContent = "Deleting...";
+  confirmButton.disabled = true;
+  confirmButton.textContent = "Deleting...";
 
   try {
 
+    /* Get CSRF token if missing */
     if (!CSRF_TOKEN) {
-      const csrfResponse = await fetch('/api/auth/csrf', {
-        credentials: 'same-origin',
-        cache: 'no-store'
-      });
+
+      const csrfResponse = await fetch(
+        "/api/auth/csrf",
+        {
+          credentials: "same-origin",
+          cache: "no-store"
+        }
+      );
 
       if (!csrfResponse.ok) {
-        throw new Error('Could not obtain CSRF token');
+        throw new Error("Could not obtain CSRF token");
       }
 
-      CSRF_TOKEN = (await csrfResponse.json()).csrf || '';
+      const csrfData = await csrfResponse.json();
+
+      CSRF_TOKEN = csrfData.csrf || "";
     }
 
+
+    /* DELETE REQUEST */
     let response = await fetch(
       `/api/writeups/${encodeURIComponent(slug)}`,
       {
-        method: 'DELETE',
-        credentials: 'same-origin',
+        method: "DELETE",
+        credentials: "same-origin",
         headers: {
-          'X-CSRF-Token': CSRF_TOKEN
+          "X-CSRF-Token": CSRF_TOKEN
         },
-        cache: 'no-store'
+        cache: "no-store"
       }
     );
 
-    // Refresh CSRF token if necessary
+
+    /* Refresh CSRF token if expired */
     if (response.status === 403) {
 
-      const csrfResponse = await fetch('/api/auth/csrf', {
-        credentials: 'same-origin',
-        cache: 'no-store'
-      });
+      const csrfResponse = await fetch(
+        "/api/auth/csrf",
+        {
+          credentials: "same-origin",
+          cache: "no-store"
+        }
+      );
 
       if (csrfResponse.ok) {
 
-        CSRF_TOKEN = (await csrfResponse.json()).csrf || '';
+        const csrfData = await csrfResponse.json();
+
+        CSRF_TOKEN = csrfData.csrf || "";
 
         response = await fetch(
           `/api/writeups/${encodeURIComponent(slug)}`,
           {
-            method: 'DELETE',
-            credentials: 'same-origin',
+            method: "DELETE",
+            credentials: "same-origin",
             headers: {
-              'X-CSRF-Token': CSRF_TOKEN
+              "X-CSRF-Token": CSRF_TOKEN
             },
-            cache: 'no-store'
+            cache: "no-store"
           }
         );
       }
     }
 
+
     const data = await response.json().catch(() => ({}));
 
+
+    /* Session expired */
     if (response.status === 401) {
+
       IS_ADMIN = false;
+
       closeDeleteModal();
-      throw new Error('Your admin session has expired.');
+
+      throw new Error("Your admin session has expired.");
     }
 
+
+    /* API error */
     if (!response.ok) {
+
       throw new Error(
         data.error || `Delete failed (${response.status})`
       );
     }
 
-    // Remove from live list
+
+    /* Remove from live list */
     LIVE_ITEMS = LIVE_ITEMS.filter(
       w => (w.slug || slugify(w.title)) !== slug
     );
 
-    // Remove from localStorage
+
+    /* Remove from localStorage */
     try {
+
       const local = publishedItems().filter(
         w => (w.slug || slugify(w.title)) !== slug
       );
@@ -610,39 +664,70 @@ document.getElementById("deleteConfirmBtn")?.addEventListener("click", async () 
         PUBLISHED_KEY,
         JSON.stringify(local)
       );
+
     } catch {}
 
+
+    /* Close modal */
     closeDeleteModal();
 
+
+    /* Remove delete button */
     renderDeleteButton(null);
+
+
+    /* Refresh UI */
     renderFilters();
     renderGrid();
     renderReaderList();
 
+
+    /* Success notification */
     showToast(
       `“${title}” deleted successfully.`
     );
 
+
+    /* Select next write-up */
     const next = allItems()[0];
 
     if (next) {
-      await selectItem(next.slug, true);
+
+      await selectItem(
+        next.slug,
+        true
+      );
+
     } else {
+
       closeReader();
+
     }
 
   } catch (err) {
 
     console.error(err);
 
-    button.disabled = false;
-    button.textContent = "Delete";
+    confirmButton.disabled = false;
+    confirmButton.textContent = "Delete";
 
     closeDeleteModal();
 
     showToast(
-      err?.message || 'Could not delete the write-up.',
-      'error'
+      err?.message ||
+      "Could not delete the write-up.",
+      "error"
     );
   }
+
+});
+
+
+/* ESC closes the modal */
+document.addEventListener("keydown", event => {
+
+  if (event.key === "Escape") {
+    closeDeleteModal();
+  }
+
 });
