@@ -2406,60 +2406,71 @@ html::-webkit-scrollbar-thumb:hover {
    ========================================================= */
 
 .delete-btn.cancel {
-  color: #b8afc9;
-
-  background:
-    rgba(255, 255, 255, .025);
-
-  border: 1px solid rgba(167, 139, 250, .20);
-}
-
-.delete-btn.cancel:hover {
   color: #ddd6fe;
 
   background:
-    rgba(139, 92, 246, .08);
+    linear-gradient(
+      135deg,
+      rgba(139, 92, 246, .18),
+      rgba(167, 139, 250, .08)
+    );
 
-  border-color:
-    rgba(167, 139, 250, .42);
+  border: 1px solid rgba(167, 139, 250, .38);
 
   box-shadow:
-    0 0 18px rgba(139, 92, 246, .08);
+    0 0 18px rgba(139, 92, 246, .08),
+    inset 0 1px 0 rgba(255, 255, 255, .04);
 }
 
+.delete-btn.cancel:hover {
+  color: #f5f3ff;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(139, 92, 246, .28),
+      rgba(167, 139, 250, .14)
+    );
+
+  border-color: rgba(196, 181, 253, .60);
+
+  box-shadow:
+    0 0 24px rgba(139, 92, 246, .18);
+}
 
 /* =========================================================
    DELETE
    ========================================================= */
 
 .delete-btn.confirm {
-  color: #0b0712;
+  color: #ffffff;
 
   background:
     linear-gradient(
       135deg,
-      #c4b5fd,
-      #a78bfa
+      #ef4444,
+      #dc2626
     );
 
-  border: 1px solid rgba(221, 214, 254, .65);
+  border: 1px solid rgba(248, 113, 113, .45);
 
   box-shadow:
-    0 0 20px rgba(167, 139, 250, .22);
+    0 8px 25px rgba(239, 68, 68, .22);
 }
 
 .delete-btn.confirm:hover {
-  color: #08050d;
-
   background:
     linear-gradient(
       135deg,
-      #ddd6fe,
-      #c4b5fd
+      #f87171,
+      #ef4444
     );
 
+  border-color: rgba(252, 165, 165, .65);
+
   box-shadow:
-    0 0 28px rgba(167, 139, 250, .38);
+    0 0 28px rgba(239, 68, 68, .32),
+    0 10px 30px rgba(239, 68, 68, .22);
 }
 
 .delete-btn.confirm:disabled {
@@ -2467,7 +2478,6 @@ html::-webkit-scrollbar-thumb:hover {
   cursor: wait;
   transform: none;
 }
-
 
 /* =========================================================
    MOBILE
